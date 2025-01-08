@@ -31,3 +31,6 @@ class Titles(models.Model):
         on_delete=models.CASCADE,
         related_name='genge',
     )
+
+class dddd(models.Model):
+    name = models.CharField(max_length=200)
