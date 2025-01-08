@@ -1,10 +1,9 @@
-from django.contrib.auth import get_user_model
 from django.db import models
-from django.contrib.auth.models import AbstractUser
 
 from users.models import MyUser
 
-#
+CHOICES = ((score, score) for score in range(11))
+
 
 class Categories(models.Model):
     name = models.CharField(max_length=200)
@@ -32,3 +31,29 @@ class Titles(models.Model):
     )
 
 
+class Review(models.Model):
+    """Модель отзывов."""
+    text = models.TextField()
+    author = models.ForeignKey(
+        MyUser, on_delete=models.CASCADE, related_name='review_author'
+    ) 
+    title = models.ForeignKey(
+        Titles, on_delete=models.CASCADE, related_name='title'
+    ) 
+    score = models.IntegerField(choices=CHOICES)
+    pub_date = models.DateTimeField(
+        'Дата добавления', auto_now_add=True, db_index=True
+    )
+
+
+class Comment(models.Model):
+    """Модель комментариев."""
+    author = models.ForeignKey(
+        MyUser, on_delete=models.CASCADE, related_name='comment_author'
+    )
+    review = models.ForeignKey(
+        Review, on_delete=models.CASCADE, related_name='review'
+    )
+    text = models.TextField()
+    created = models.DateTimeField(
+        'Дата добавления', auto_now_add=True, db_index=True)
