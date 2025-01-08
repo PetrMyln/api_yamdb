@@ -1,5 +1,6 @@
 from django.shortcuts import render
 
+
 from reveiews.models import (
     MyUser,
     Categories,
@@ -33,3 +34,4 @@ class CategoriesViewSet(viewsets.ModelViewSet):
 class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+
