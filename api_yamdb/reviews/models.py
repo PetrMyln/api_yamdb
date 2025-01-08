@@ -3,9 +3,6 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 
-class MyUser(AbstractUser):
-    bio = models.TextField('Биография', blank=True)
-    role = models.TextField('Статус пользователя')
 
 class Categories(models.Model):
     name = models.CharField(max_length=200)
