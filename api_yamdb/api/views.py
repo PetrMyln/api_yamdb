@@ -49,3 +49,9 @@ class ReviewViewSet(viewsets.ModelViewSet):
     """Вьюсет для ревью."""
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+
+
+class MyUserViewSet(viewsets.ModelViewSet):
+    queryset = MyUser.objects.all()
+    serializer_class = MyUserSerializer
+
