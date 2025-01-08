@@ -1,7 +1,7 @@
 from django.shortcuts import render
+from rest_framework import viewsets
 
-
-from reveiews.models import (
+from reviews.models import (
     MyUser,
     Categories,
     Titles,
@@ -34,5 +34,3 @@ class CategoriesViewSet(viewsets.ModelViewSet):
 class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-
-1

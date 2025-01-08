@@ -2,7 +2,9 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+from users.models import MyUser
 
+#
 
 class Categories(models.Model):
     name = models.CharField(max_length=200)
@@ -21,41 +23,12 @@ class Titles(models.Model):
     category = models.ForeignKey(
         Categories,
         on_delete=models.CASCADE,
-        related_name='category',
+        related_name='categorys',
     )
     genge = models.ForeignKey(
         Genre,
         on_delete=models.CASCADE,
-        related_name='genge',
-    )
-
-class Titles2(models.Model):
-    name = models.CharField(max_length=200)
-    year = models.DateTimeField(
-        'Дата выхода')
-    category = models.ForeignKey(
-        Categories,
-        on_delete=models.CASCADE,
-        related_name='category',
-    )
-    genge = models.ForeignKey(
-        Genre,
-        on_delete=models.CASCADE,
-        related_name='genge',
+        related_name='genges',
     )
 
 
-class Titles3(models.Model):
-    name = models.CharField(max_length=200)
-    year = models.DateTimeField(
-        'Дата выхода')
-    category = models.ForeignKey(
-        Categories,
-        on_delete=models.CASCADE,
-        related_name='category',
-    )
-    genge = models.ForeignKey(
-        Genre,
-        on_delete=models.CASCADE,
-        related_name='genge',
-    )

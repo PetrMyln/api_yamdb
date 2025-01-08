@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.relations import SlugRelatedField
 
-from reveiews.models import (
+from reviews.models import (
     MyUser,
     Categories,
     Titles,
