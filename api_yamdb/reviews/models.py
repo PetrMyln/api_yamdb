@@ -29,3 +29,33 @@ class Titles(models.Model):
         related_name='genge',
     )
 
+class Titles2(models.Model):
+    name = models.CharField(max_length=200)
+    year = models.DateTimeField(
+        'Дата выхода')
+    category = models.ForeignKey(
+        Categories,
+        on_delete=models.CASCADE,
+        related_name='category',
+    )
+    genge = models.ForeignKey(
+        Genre,
+        on_delete=models.CASCADE,
+        related_name='genge',
+    )
+
+
+class Titles3(models.Model):
+    name = models.CharField(max_length=200)
+    year = models.DateTimeField(
+        'Дата выхода')
+    category = models.ForeignKey(
+        Categories,
+        on_delete=models.CASCADE,
+        related_name='category',
+    )
+    genge = models.ForeignKey(
+        Genre,
+        on_delete=models.CASCADE,
+        related_name='genge',
+    )
