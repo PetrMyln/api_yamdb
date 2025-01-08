@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
-from rest_framework.relations import SlugRelatedField
 
-from reveiews.models import (
+from reviews.models import (
+    Comment,
+    Review,
     MyUser,
     Categories,
     Titles,
@@ -18,10 +18,10 @@ class MyUserSerializer(serializers.ModelSerializer):
             'username',
             'first_name',
             'last_name',
+            'email',
             'bio',
             'role',
         )
-
 
 
 class TitlesSerializer(serializers.ModelSerializer):
@@ -43,3 +43,25 @@ class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('id', 'name', 'slug')
         model = Genre
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели комментариев."""
+    author = serializers.SlugRelatedField(
+        read_only=True, slug_field='username'
+    )
+
+    class Meta:
+        fields = ('id', 'text', 'author', 'created')
+        model = Comment
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели комментариев."""
+    author = serializers.SlugRelatedField(
+        read_only=True, slug_field='username'
+    )
+
+    class Meta:
+        fields = ('id', 'text', 'author', 'score', 'created')
+        model = Review

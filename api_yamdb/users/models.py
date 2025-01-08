@@ -7,3 +7,4 @@ from django.contrib.auth.models import AbstractUser
 class MyUser(AbstractUser):
     bio = models.TextField('Биография', blank=True)
     role = models.TextField('Статус пользователя')
+    email = models.EmailField(unique=True)
