@@ -3,6 +3,17 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 
+
+class Group(models.Model):
+    """Модель групп."""
+    title = models.CharField(max_length=200)
+    slug = models.SlugField(unique=True)
+    description = models.TextField()
+
+    def __str__(self):
+        return self.title
+
+
 class MyUser(AbstractUser):
     bio = models.TextField('Биография', blank=True)
     role = models.TextField('Статус пользователя')
@@ -31,3 +42,4 @@ class Titles(models.Model):
         on_delete=models.CASCADE,
         related_name='genge',
     )
+
