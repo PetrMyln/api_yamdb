@@ -43,3 +43,7 @@ class Titles(models.Model):
         related_name='genge',
     )
 
+
+class dddd(models.Model):
+    name = models.CharField(max_length=201)
+
