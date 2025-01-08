@@ -3,6 +3,7 @@ from pathlib import Path
 from datetime import timedelta
 
 
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -26,6 +27,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'djoser',
+    'users',
     'api',
     'reviews',
 ]
@@ -125,3 +127,4 @@ SIMPLE_JWT = {
 }
 
 AUTH_USER_MODEL = 'users.MyUser'
+
