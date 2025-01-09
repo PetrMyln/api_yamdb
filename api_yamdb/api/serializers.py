@@ -27,7 +27,7 @@ class MyUserSerializer(serializers.ModelSerializer):
 class TitlesSerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = ('id', 'name', 'year', 'category', 'genge',)
+        fields = ('id', 'name', 'year', 'category', 'genre',)
         model = Titles
 
 

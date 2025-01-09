@@ -17,8 +17,7 @@ class Genre(models.Model):
 
 class Titles(models.Model):
     name = models.CharField(max_length=150)
-    year = models.DateTimeField(
-        'Дата выхода')
+    year = models.CharField(max_length=150)
     category = models.ForeignKey(
         Categories,
         on_delete=models.CASCADE,
@@ -54,7 +53,7 @@ class Comment(models.Model):
         Review, on_delete=models.CASCADE, related_name='review'
     )
     text = models.TextField()
-    created = models.DateTimeField(
+    pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
 
 
