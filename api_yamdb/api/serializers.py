@@ -13,15 +13,7 @@ from reviews.models import (
 class MyUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = MyUser
-        fields = (
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            'email',
-            'bio',
-            'role',
-        )
+        fields = '__all__'
 
 
 class TitlesSerializer(serializers.ModelSerializer):
