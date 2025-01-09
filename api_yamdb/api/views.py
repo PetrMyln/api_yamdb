@@ -40,7 +40,7 @@ class CategoriesViewSet(viewsets.ModelViewSet):
     filter_backends = (SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
-    permission_classes = (AdminOrReadOnly,)
+    #permission_classes = (AdminOrReadOnly,)
 
     def fperform_create(self, serializer):
         print(11111111111111111111111111)
