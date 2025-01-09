@@ -20,10 +20,10 @@ from api.serializers import (
 )
 
 
-class MyUserViewSet(viewsets.ReadOnlyModelViewSet):
+class MyUserViewSet(viewsets.ModelViewSet):
     queryset = MyUser.objects.all()
     serializer_class = MyUserSerializer
-
+    
 
 class TitlesViewSet(viewsets.ModelViewSet):
     queryset = Titles.objects.all()
@@ -67,6 +67,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
 
+
     def get_queryset(self):
         return get_object_or_404(
             Titles,
@@ -81,3 +82,9 @@ class ReviewViewSet(viewsets.ModelViewSet):
                 pk=self.kwargs.get('title_id')
             )
         )
+
+
+
+
+
+

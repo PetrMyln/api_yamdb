@@ -8,9 +8,12 @@ from api.views import (
     TitlesViewSet,
     CategoriesViewSet,
     GenreViewSet,
+    ReviewViewSet,
+    CommentViewSet,
 )
 
 v1_router = routers.DefaultRouter()
+v1_router.register('users', MyUserViewSet, basename='users')
 v1_router.register('titles', TitlesViewSet, basename='titles')
 v1_router.register('categories', CategoriesViewSet, basename='categories')
 v1_router.register('genres', GenreViewSet, basename='genres')

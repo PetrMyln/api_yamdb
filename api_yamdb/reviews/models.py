@@ -6,17 +6,17 @@ CHOICES = ((score, score) for score in range(11))
 
 
 class Categories(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=150)
     slug = models.SlugField(unique=True)
 
 
 class Genre(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=150)
     slug = models.SlugField(unique=True)
 
 
 class Titles(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=150)
     year = models.DateTimeField(
         'Дата выхода')
     category = models.ForeignKey(
@@ -24,10 +24,9 @@ class Titles(models.Model):
         on_delete=models.CASCADE,
         related_name='categorys',
     )
-    genge = models.ForeignKey(
+    genre = models.ManyToManyField(
         Genre,
-        on_delete=models.CASCADE,
-        related_name='genges',
+        related_name='genres',
     )
 
 
@@ -57,3 +56,6 @@ class Comment(models.Model):
     text = models.TextField()
     created = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
+
+
+
