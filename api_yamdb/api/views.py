@@ -1,4 +1,5 @@
 from rest_framework import viewsets
+from django.shortcuts import get_object_or_404
 
 from reviews.models import (
     Comment,
@@ -44,8 +45,39 @@ class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
 
+    def get_queryset(self):
+        return get_object_or_404(
+            Review,
+            pk=self.kwargs.get('review_id')
+        ).review.all()
+    
+    def perform_create(self, serializer):
+        serializer.save(
+            author=self.request.user,
+            review=get_object_or_404(
+                Review,
+                pk=self.kwargs.getself.kwargs.get('review_id')
+            )
+        )
+    
+
 
 class ReviewViewSet(viewsets.ModelViewSet):
     """Вьюсет для ревью."""
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        return get_object_or_404(
+            Titles,
+            pk=self.kwargs.get('title_id')
+        ).title.all()
+    
+    def perform_create(self, serializer):
+        serializer.save(
+            author=self.request.user,
+            title=get_object_or_404(
+                Titles,
+                pk=self.kwargs.get('title_id')
+            )
+        )
