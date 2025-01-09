@@ -1,5 +1,9 @@
 from rest_framework import viewsets
+from django.shortcuts import get_object_or_404
+from rest_framework.filters import SearchFilter
+from rest_framework.pagination import PageNumberPagination
 
+from api.permissions import AdminOrReadOnly
 from reviews.models import (
     Comment,
     Review,
@@ -19,10 +23,10 @@ from api.serializers import (
 )
 
 
-class MyUserViewSet(viewsets.ReadOnlyModelViewSet):
+class MyUserViewSet(viewsets.ModelViewSet):
     queryset = MyUser.objects.all()
     serializer_class = MyUserSerializer
-
+    
 
 class TitlesViewSet(viewsets.ModelViewSet):
     queryset = Titles.objects.all()
@@ -30,8 +34,17 @@ class TitlesViewSet(viewsets.ModelViewSet):
 
 
 class CategoriesViewSet(viewsets.ModelViewSet):
-    queryset = Categories.objects.all()
+    queryset = Categories.objects.all().order_by('id')
     serializer_class = CategoriesSerializer
+    pagination_class = PageNumberPagination
+    filter_backends = (SearchFilter,)
+    search_fields = ('name',)
+    lookup_field = 'slug'
+    permission_classes = (AdminOrReadOnly,)
+
+    def fperform_create(self, serializer):
+        print(11111111111111111111111111)
+        print(serializer)
 
 
 class GenreViewSet(viewsets.ModelViewSet):
@@ -44,6 +57,22 @@ class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
 
+    def get_queryset(self):
+        return get_object_or_404(
+            Review,
+            pk=self.kwargs.get('review_id')
+        ).review.all()
+    
+    def perform_create(self, serializer):
+        serializer.save(
+            author=self.request.user,
+            review=get_object_or_404(
+                Review,
+                pk=self.kwargs.getself.kwargs.get('review_id')
+            )
+        )
+    
+
 
 class ReviewViewSet(viewsets.ModelViewSet):
     """Вьюсет для ревью."""
@@ -51,7 +80,26 @@ class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
 
 
-class MyUserViewSet(viewsets.ModelViewSet):
-    queryset = MyUser.objects.all()
-    serializer_class = MyUserSerializer
+    def get_queryset(self):
+        return get_object_or_404(
+            Titles,
+            pk=self.kwargs.get('title_id')
+        ).title.all()
+    
+    def perform_create(self, serializer):
+        serializer.save(
+            author=self.request.user,
+            title=get_object_or_404(
+                Titles,
+                pk=self.kwargs.get('title_id')
+            )
+        )
 
+
+
+
+class SignUp:
+    pass
+
+class GetToken:
+    pass

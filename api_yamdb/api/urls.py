@@ -16,16 +16,20 @@ v1_router.register('titles', TitlesViewSet, basename='titles')
 v1_router.register('categories', CategoriesViewSet, basename='categories')
 v1_router.register('genres', GenreViewSet, basename='genres')
 v1_router.register(
-    'title/(?P<titele_id>\d+)/review/',
+    r'titles/(?P<title_id>\d+)/reviews',
     ReviewViewSet,
-    basename='review')
+    basename='reviews'
+)
 v1_router.register(
-    r'title/(?P<titele_id>\d+)/review/(?P<review_id>\d+)/comments',
+    r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
     CommentViewSet,
-    basename='comment')
+    basename='comments'
+)
 
 urlpatterns = [
     path('v1/', include(v1_router.urls)),
     path('v1/auth/', include('djoser.urls')),
     path('v1/', include('djoser.urls.jwt')),
+    #path('v1/auth/signup/', SignUp.as_view(),name='sign_up'),
+    #path('v1/auth/token/', GetToken.as_view(), name='get_token'),
 ]

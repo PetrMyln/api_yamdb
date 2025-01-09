@@ -1,14 +1,17 @@
 from django.contrib import admin
 
-from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
 
-from .models import MyUser
-
-
-UserAdmin.fieldsets += (
-
-    ('Extra Fields', {'fields': ('role',)}),
+from reviews.models import (
+    Comment,
+    Review,
+    MyUser,
+    Categories,
+    Titles,
+    Genre
 )
-
-admin.site.register(MyUser, UserAdmin)
+# Register your models here.
+admin.site.register(Titles)
+admin.site.register(Categories)
+admin.site.register(Genre)
+admin.site.register(Review)
+admin.site.register(Comment)
