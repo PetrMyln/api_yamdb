@@ -20,15 +20,11 @@ csv_data = {
     Review: 'review.csv',
     Comment: 'comments.csv',
 
-
-
-
-
 }
 
 
 class Command(BaseCommand):
-    help = 'Add csv files from static dir in data base'
+    help = 'Add csv files from static/data/ dir in data base'
 
     def handle(self, *args, **kwargs):
         for model, file_name in csv_data.items():
@@ -40,5 +36,3 @@ class Command(BaseCommand):
                         a = model.objects.create(**row)
                     except Exception as e:
                         pass
-
-

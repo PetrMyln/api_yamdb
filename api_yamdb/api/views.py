@@ -1,5 +1,6 @@
 from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
+from rest_framework.pagination import LimitOffsetPagination
 
 from reviews.models import (
     Comment,
@@ -33,7 +34,7 @@ class TitlesViewSet(viewsets.ModelViewSet):
 class CategoriesViewSet(viewsets.ModelViewSet):
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
-
+    pagination_class = LimitOffsetPagination
 
 class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
