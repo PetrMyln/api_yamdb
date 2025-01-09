@@ -19,7 +19,6 @@ csv_data = {
     Titles: 'titles.csv',
     Review: 'review.csv',
     Comment: 'comments.csv',
-
 }
 
 
