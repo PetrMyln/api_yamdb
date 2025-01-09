@@ -8,3 +8,4 @@ class MyUser(AbstractUser):
     bio = models.TextField('Биография', blank=True)
     role = models.TextField('Статус пользователя')
     email = models.EmailField(unique=True)
+
