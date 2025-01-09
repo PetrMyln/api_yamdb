@@ -34,8 +34,17 @@ class TitlesSerializer(serializers.ModelSerializer):
 class CategoriesSerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = ('id', 'name', 'slug')
+        fields = ('name', 'slug')
         model = Categories
+        ordering = ['-id']
+
+    def validate(self,data):
+        if "name" not in data or "slug" not in data:
+            return False
+        return data
+
+
+
 
 
 class GenreSerializer(serializers.ModelSerializer):
