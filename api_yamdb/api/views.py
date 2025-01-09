@@ -1,6 +1,9 @@
 from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
+from rest_framework.filters import SearchFilter
+from rest_framework.pagination import PageNumberPagination
 
+from api.permissions import AdminOrReadOnly
 from reviews.models import (
     Comment,
     Review,
@@ -31,8 +34,17 @@ class TitlesViewSet(viewsets.ModelViewSet):
 
 
 class CategoriesViewSet(viewsets.ModelViewSet):
-    queryset = Categories.objects.all()
+    queryset = Categories.objects.all().order_by('id')
     serializer_class = CategoriesSerializer
+    pagination_class = PageNumberPagination
+    filter_backends = (SearchFilter,)
+    search_fields = ('name',)
+    lookup_field = 'slug'
+    #permission_classes = (AdminOrReadOnly,)
+
+    def fperform_create(self, serializer):
+        print(11111111111111111111111111)
+        print(serializer)
 
 
 class GenreViewSet(viewsets.ModelViewSet):
@@ -86,5 +98,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 
 
+class SignUp:
+    pass
 
-
+class GetToken:
+    pass
