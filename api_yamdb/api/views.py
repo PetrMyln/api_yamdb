@@ -7,7 +7,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAdminUser
 from rest_framework.viewsets import GenericViewSet
 
-from api.permissions import AdminOrReadOnly, NotAnyOne
+from api.permissions import AdminOrReadOnly, NotAnyOne, Admin, UserOrReadOnly
 from reviews.models import (
     Comment,
     Review,
@@ -41,6 +41,11 @@ class TitlesViewSet(viewsets.ModelViewSet):
     queryset = Titles.objects.all().order_by('id')
     serializer_class = TitlesSerializer
     pagination_class = PageNumberPagination
+    #permission_classes = (AdminOrReadOnly,)
+
+    def perform_create(self, serializer):
+        serializer.save()
+        super().perform_create(serializer)
 
 
 class CategoriesViewSet(CustomMixSet):
@@ -56,10 +61,14 @@ class CategoriesViewSet(CustomMixSet):
 
 
 
-class GenreViewSet(viewsets.ModelViewSet):
+class GenreViewSet(CustomMixSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-
+    pagination_class = PageNumberPagination
+    filter_backends = (SearchFilter,)
+    search_fields = ('name',)
+    lookup_field = 'slug'
+    permission_classes = (AdminOrReadOnly,)
 
 class CommentViewSet(viewsets.ModelViewSet):
     """Вьюсет для комментариев."""
