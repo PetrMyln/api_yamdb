@@ -6,11 +6,14 @@ from users.models import MyUser
 CHOICES = ((score, score) for score in range(11))
 
 
+
+
 class Categories(models.Model):
     name = models.CharField(max_length=256)
     slug = models.SlugField(unique=True, default='empty')
 
     class Meta:
+        ordering = ['-id']
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 

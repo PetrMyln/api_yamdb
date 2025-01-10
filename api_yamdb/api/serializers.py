@@ -38,12 +38,11 @@ class CategoriesSerializer(serializers.ModelSerializer):
         model = Categories
         ordering = ['-id']
 
-    def validate(self,data):
-        if "name" not in data or "slug" not in data:
-            return False
-        return data
 
-
+class CategoryField(serializers.SlugRelatedField):
+    def to_representation(self, value):
+        serializer = CategoriesSerializer(value)
+        return serializer.data
 
 
 
