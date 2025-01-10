@@ -26,31 +26,44 @@ class MyUserSerializer(serializers.ModelSerializer):
 
 class TitlesSerializer(serializers.ModelSerializer):
 
+
+    """    category = serializers.StringRelatedField(
+            many=True,
+            read_only=True,
+            #queryset=Categories.objects.all(),
+           # slug_field='category'
+        )
+
+        genre = serializers.StringRelatedField(
+            many=True,
+            read_only=True,
+            #queryset=Genre.objects.all(),
+           # slug_field='genre'
+        )
+    """
+
+
     class Meta:
-        fields = ('id', 'name', 'year', 'category', 'genre',)
+        fields = ('name', 'year', 'category', 'genre',)
         model = Titles
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
-
     class Meta:
         fields = ('name', 'slug')
         model = Categories
-        ordering = ['-id']
-
-    def validate(self,data):
-        if "name" not in data or "slug" not in data:
-            return False
-        return data
+        # ordering = ['-id']
 
 
-
+class CategoryField(serializers.SlugRelatedField):
+    def to_representation(self, value):
+        serializer = CategoriesSerializer(value)
+        return serializer.data
 
 
 class GenreSerializer(serializers.ModelSerializer):
-
     class Meta:
-        fields = ('id', 'name', 'slug')
+        fields = ('name', 'slug')
         model = Genre
 
 

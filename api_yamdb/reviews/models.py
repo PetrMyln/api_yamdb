@@ -6,11 +6,14 @@ from users.models import MyUser
 CHOICES = ((score, score) for score in range(11))
 
 
+
+
 class Categories(models.Model):
     name = models.CharField(max_length=256)
     slug = models.SlugField(unique=True, default='empty')
 
     class Meta:
+        ordering = ['-id']
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
@@ -22,6 +25,7 @@ class Genre(models.Model):
     slug = models.SlugField(unique=True)
 
     class Meta:
+        ordering = ['-id']
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
@@ -30,7 +34,7 @@ class Genre(models.Model):
 
 
 class Titles(models.Model):
-    name = models.CharField(max_length=150)
+    name = models.CharField(max_length=256)
     year = models.IntegerField()
     category = models.ForeignKey(
         Categories,
@@ -41,10 +45,12 @@ class Titles(models.Model):
         Genre,
         related_name='genres',
     )
+    description = models.CharField(max_length=256, null=True, blank=True )
 
     class Meta:
-        verbose_name = 'Название'
-
+        ordering = ['-id']
+        verbose_name = 'Произведение'
+        verbose_name_plural = 'Произведения'
     def __str__(self):
         return self.name
 
