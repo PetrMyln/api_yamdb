@@ -10,7 +10,6 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.viewsets import GenericViewSet
 import django_filters
 
-
 from api.permissions import AdminOrReadOnly, NotAnyOne, Admin, UserOrReadOnly
 from reviews.models import (
     Comment,
@@ -41,11 +40,6 @@ class MyUserViewSet(viewsets.ModelViewSet):
     serializer_class = MyUserSerializer
 
 
-
-
-
-
-
 class TitleFilter(django_filters.FilterSet):
     category = django_filters.CharFilter(field_name="category__slug")
     genre = django_filters.CharFilter(field_name="genre__slug")
@@ -55,10 +49,9 @@ class TitleFilter(django_filters.FilterSet):
         fields = ('name', 'year', 'category', 'genre')
 
 
-
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
-    permission_classes = (AdminOrReadOnly, )
+    permission_classes = (AdminOrReadOnly,)
     http_method_names = ['get', 'post', 'patch', 'delete']
     filterset_class = TitleFilter
     filter_backends = (DjangoFilterBackend, OrderingFilter)
@@ -68,11 +61,9 @@ class TitleViewSet(viewsets.ModelViewSet):
             return TitleSerializersCreateUpdate
         return TitlesSerializer
 
+
 """    def get_queryset(self):
         return Title.objects.annotate(rating=Avg('reviews__score'))"""
-
-
-
 
 
 class CategoryViewSet(CustomMixSet):
@@ -111,7 +102,7 @@ class CommentViewSet(viewsets.ModelViewSet):
             author=self.request.user,
             review=get_object_or_404(
                 Review,
-                pk=self.kwargs.get('review_id')
+                pk=self.kwargs.getself.kwargs.get('review_id')
             )
         )
 

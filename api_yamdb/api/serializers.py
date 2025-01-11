@@ -24,10 +24,6 @@ class MyUserSerializer(serializers.ModelSerializer):
         )
 
 
-
-
-
-
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('name', 'slug')
@@ -70,12 +66,11 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only_fields = ('title',)
 
 
-
 class TitlesSerializer(serializers.ModelSerializer):
-
     category = CategorySerializer()
     genre = GenreSerializer(many=True)
-    #rating = serializers.IntegerField()
+
+    # rating = serializers.IntegerField()
 
     class Meta:
         fields = ('id',
@@ -87,7 +82,7 @@ class TitlesSerializer(serializers.ModelSerializer):
                   'category',)
 
         model = Title
-        
+
 
 class TitlesSerializer(serializers.ModelSerializer):
     score = serializers.SerializerMethodField()
@@ -95,7 +90,6 @@ class TitlesSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('id', 'name', 'year', 'category', 'genre', 'score')
         model = Titles
-
 
     def get_score(self, obj):
         total_score = 0
@@ -106,7 +100,8 @@ class TitlesSerializer(serializers.ModelSerializer):
         if total_reviews == 0:
             return "Обзоров на это произведение еще нет"
         return round(total_score / total_reviews)
-        
+
+
 class TitleSerializersCreateUpdate(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(
         slug_field='slug',
