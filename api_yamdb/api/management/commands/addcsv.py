@@ -8,7 +8,7 @@ from reviews.models import (
     Comment,
     Review,
     Categories,
-    Titles,
+    Title,
     Genre
 )
 
@@ -18,13 +18,12 @@ CSV_DATA = {
     MyUser: 'users.csv',
     Genre: 'genre.csv',
     Categories: 'category.csv',
-    Titles: 'titles.csv',
+    Title: 'titles.csv',
     Review: 'review.csv',
     Comment: 'comments.csv',
 }
 
 FILE_WITH_TITLES_GENRE = 'static\data\genre_title.csv'
-
 
 class Command(BaseCommand):
     help = 'Add csv files from static/data/ dir in data base'
@@ -42,12 +41,21 @@ class Command(BaseCommand):
         con = sqlite3.connect('db.sqlite3')
         cur = con.cursor()
         data_for_db = list()
+
         with open(FILE_WITH_TITLES_GENRE, encoding='utf-8') as file:
             data = file.readlines()
             for c in data:
                 data_for_db.append(c[:-1].split(','))
+        cur.execute('''
+        CREATE TABLE IF NOT EXISTS genre_title (
+        id INTEGER PRIMARY KEY,
+        title_id TEXT  NOT NULL,
+        genre_id TEXT  NOT NULL
+        );
+        ''')
+        con.commit()
         cur.executemany(
-            'INSERT INTO reviews_titles_genre VALUES(?, ?, ?)',
+            'INSERT INTO genre_title VALUES(?, ?, ?)',
             data_for_db[1:])
         con.commit()
         con.close()
