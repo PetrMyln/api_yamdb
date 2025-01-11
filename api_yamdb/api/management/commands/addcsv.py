@@ -1,6 +1,8 @@
 from django.core.management.base import BaseCommand
 
 import csv
+import sqlite3
+
 
 from reviews.models import (
     Comment,
@@ -12,7 +14,7 @@ from reviews.models import (
 
 from users.models import MyUser
 
-csv_data = {
+CSV_DATA = {
     MyUser: 'users.csv',
     Genre: 'genre.csv',
     Categories: 'category.csv',
@@ -21,12 +23,14 @@ csv_data = {
     Comment: 'comments.csv',
 }
 
+FILE_WITH_TITLES_GENRE = 'static\data\genre_title.csv'
+
 
 class Command(BaseCommand):
     help = 'Add csv files from static/data/ dir in data base'
 
     def handle(self, *args, **kwargs):
-        for model, file_name in csv_data.items():
+        for model, file_name in CSV_DATA.items():
             file_name = 'static\data' + '\\' + file_name
             with open(file_name, encoding='utf-8') as file:
                 rows = csv.DictReader(file)
@@ -35,3 +39,15 @@ class Command(BaseCommand):
                         a = model.objects.create(**row)
                     except Exception as e:
                         pass
+        con = sqlite3.connect('db.sqlite3')
+        cur = con.cursor()
+        data_for_db = list()
+        with open(FILE_WITH_TITLES_GENRE, encoding='utf-8') as file:
+            data = file.readlines()
+            for c in data:
+                data_for_db.append(c[:-1].split(','))
+        cur.executemany(
+            'INSERT INTO reviews_titles_genre VALUES(?, ?, ?)',
+            data_for_db[1:])
+        con.commit()
+        con.close()

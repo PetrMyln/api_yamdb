@@ -42,6 +42,8 @@ class TitlesViewSet(viewsets.ModelViewSet):
     serializer_class = TitlesSerializer
     pagination_class = PageNumberPagination
     #permission_classes = (AdminOrReadOnly,)
+    filter_backends = (SearchFilter,)
+    search_fields = ('name', 'category', 'genre','year')
 
     def perform_create(self, serializer):
         serializer.save()
