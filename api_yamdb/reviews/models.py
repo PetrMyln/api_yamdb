@@ -10,7 +10,7 @@ CHOICES = ((score, score) for score in range(11))
 
 
 
-class Categories(models.Model):
+class Category(models.Model):
     name = models.CharField(max_length=256)
     slug = models.SlugField(unique=True, default='empty')
 
@@ -39,7 +39,7 @@ class Title(models.Model):
     name = models.CharField(max_length=256)
     year = models.IntegerField()
     category = models.ForeignKey(
-        Categories,
+        Category,
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
@@ -55,6 +55,7 @@ class Title(models.Model):
         null=True,
         blank=True
     )
+
 
     class Meta:
         ordering = ['-id']
@@ -105,9 +106,3 @@ class Comment(models.Model):
         return self.text
 
 
-"""class GenreTitle(models.Model):
-    title = models.ForeignKey(Title, on_delete=models.CASCADE)
-    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f'{self.title} {self.genre}'"""
