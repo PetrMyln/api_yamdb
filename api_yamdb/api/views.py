@@ -68,7 +68,7 @@ class CommentViewSet(viewsets.ModelViewSet):
             author=self.request.user,
             review=get_object_or_404(
                 Review,
-                pk=self.kwargs.getself.kwargs.get('review_id')
+                pk=self.kwargs.get('review_id')
             )
         )
     

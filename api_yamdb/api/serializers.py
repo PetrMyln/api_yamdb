@@ -25,10 +25,22 @@ class MyUserSerializer(serializers.ModelSerializer):
 
 
 class TitlesSerializer(serializers.ModelSerializer):
+    score = serializers.SerializerMethodField()
 
     class Meta:
-        fields = ('id', 'name', 'year', 'category', 'genre',)
+        fields = ('id', 'name', 'year', 'category', 'genre', 'score')
         model = Titles
+
+    def get_score(self, obj):
+        total_score = 0
+        total_reviews = 0
+        for review in Review.objects.filter(title_id=obj.id):
+            total_reviews += 1
+            total_score += int(review.score)
+        if total_reviews == 0:
+            return "Обзоров на это произведение еще нет"
+        return round(total_score / total_reviews)
+
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
@@ -61,7 +73,7 @@ class CommentSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = ('id', 'text', 'author', 'created')
+        fields = ('id', 'text', 'author', 'pub_date')
         model = Comment
 
 
