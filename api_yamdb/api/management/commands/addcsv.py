@@ -7,7 +7,7 @@ import sqlite3
 from reviews.models import (
     Comment,
     Review,
-    Categories,
+    Category,
     Title,
     Genre
 )
@@ -17,7 +17,7 @@ from users.models import MyUser
 CSV_DATA = {
     MyUser: 'users.csv',
     Genre: 'genre.csv',
-    Categories: 'category.csv',
+    Category: 'category.csv',
     Title: 'titles.csv',
     Review: 'review.csv',
     Comment: 'comments.csv',

@@ -1,6 +1,8 @@
+from django.db.models import Avg
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
-from rest_framework.filters import SearchFilter
+from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, \
     DestroyModelMixin, RetrieveModelMixin
 from rest_framework.pagination import PageNumberPagination
@@ -12,7 +14,7 @@ from reviews.models import (
     Comment,
     Review,
     MyUser,
-    Categories,
+    Category,
     Title,
     Genre
 )
@@ -22,45 +24,63 @@ from api.serializers import (
     MyUserSerializer,
     TitlesSerializer,
     ReviewSerializer,
-    CategoriesSerializer,
-    GenreSerializer
+    CategorySerializer,
+    GenreSerializer, TitleSerializersCreateUpdate
 )
 
 
 class CustomMixSet(ListModelMixin, CreateModelMixin,
-                    DestroyModelMixin, GenericViewSet):
+                   DestroyModelMixin, GenericViewSet):
     pass
 
 
 class MyUserViewSet(viewsets.ModelViewSet):
     queryset = MyUser.objects.all()
     serializer_class = MyUserSerializer
-    
-
-class TitlesViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all().order_by('id')
-    serializer_class = TitlesSerializer
-    pagination_class = PageNumberPagination
-    #permission_classes = (AdminOrReadOnly,)
-    filter_backends = (SearchFilter,)
-    search_fields = ('name', 'category', 'genre','year')
-
-    def perform_create(self, serializer):
-        serializer.save()
-        super().perform_create(serializer)
 
 
-class CategoriesViewSet(CustomMixSet):
-    queryset = Categories.objects.all()
-    serializer_class = CategoriesSerializer
+
+import django_filters
+from reviews.models import Title
+
+
+class TitleFilter(django_filters.FilterSet):
+    category = django_filters.CharFilter(field_name="category__slug")
+    genre = django_filters.CharFilter(field_name="genre__slug")
+
+    class Meta:
+        model = Title
+        fields = ('name', 'year', 'category', 'genre')
+
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all()
+    permission_classes = (AdminOrReadOnly, )
+    http_method_names = ['get', 'post', 'patch', 'delete']
+    filterset_class = TitleFilter
+    filter_backends = (DjangoFilterBackend, OrderingFilter)
+
+    def get_serializer_class(self):
+        if self.action in ('create', 'partial_update'):
+            return TitleSerializersCreateUpdate
+        return TitlesSerializer
+
+"""    def get_queryset(self):
+        return Title.objects.annotate(rating=Avg('reviews__score'))"""
+
+
+
+
+
+class CategoryViewSet(CustomMixSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
     pagination_class = PageNumberPagination
     filter_backends = (SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
     permission_classes = (AdminOrReadOnly,)
-
-
-
 
 
 class GenreViewSet(CustomMixSet):
@@ -72,6 +92,7 @@ class GenreViewSet(CustomMixSet):
     lookup_field = 'slug'
     permission_classes = (AdminOrReadOnly,)
 
+
 class CommentViewSet(viewsets.ModelViewSet):
     """Вьюсет для комментариев."""
     queryset = Comment.objects.all()
@@ -82,7 +103,7 @@ class CommentViewSet(viewsets.ModelViewSet):
             Review,
             pk=self.kwargs.get('review_id')
         ).review.all()
-    
+
     def perform_create(self, serializer):
         serializer.save(
             author=self.request.user,
@@ -91,7 +112,6 @@ class CommentViewSet(viewsets.ModelViewSet):
                 pk=self.kwargs.getself.kwargs.get('review_id')
             )
         )
-    
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -99,13 +119,12 @@ class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
 
-
     def get_queryset(self):
         return get_object_or_404(
             Title,
             pk=self.kwargs.get('title_id')
         ).title.all()
-    
+
     def perform_create(self, serializer):
         serializer.save(
             author=self.request.user,
@@ -116,10 +135,9 @@ class ReviewViewSet(viewsets.ModelViewSet):
         )
 
 
-
-
 class SignUp:
     pass
+
 
 class GetToken:
     pass
