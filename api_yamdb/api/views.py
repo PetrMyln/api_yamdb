@@ -8,6 +8,8 @@ from rest_framework.mixins import ListModelMixin, CreateModelMixin, \
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAdminUser
 from rest_framework.viewsets import GenericViewSet
+import django_filters
+
 
 from api.permissions import AdminOrReadOnly, NotAnyOne, Admin, UserOrReadOnly
 from reviews.models import (
@@ -40,8 +42,8 @@ class MyUserViewSet(viewsets.ModelViewSet):
 
 
 
-import django_filters
-from reviews.models import Title
+
+
 
 
 class TitleFilter(django_filters.FilterSet):
