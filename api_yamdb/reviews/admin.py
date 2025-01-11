@@ -6,11 +6,11 @@ from reviews.models import (
     Review,
     MyUser,
     Categories,
-    Titles,
+    Title,
     Genre
 )
 # Register your models here.
-admin.site.register(Titles)
+admin.site.register(Title)
 admin.site.register(Categories)
 admin.site.register(Genre)
 admin.site.register(Review)

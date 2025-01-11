@@ -8,6 +8,8 @@ CHOICES = ((score, score) for score in range(11))
 
 
 
+
+
 class Categories(models.Model):
     name = models.CharField(max_length=256)
     slug = models.SlugField(unique=True, default='empty')
@@ -33,19 +35,26 @@ class Genre(models.Model):
         return self.name
 
 
-class Titles(models.Model):
+class Title(models.Model):
     name = models.CharField(max_length=256)
     year = models.IntegerField()
     category = models.ForeignKey(
         Categories,
-        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
         related_name='categorys',
     )
     genre = models.ManyToManyField(
         Genre,
+        blank=True,
         related_name='genres',
     )
-    description = models.CharField(max_length=256, null=True, blank=True )
+    description = models.CharField(
+        max_length=256,
+        null=True,
+        blank=True
+    )
 
     class Meta:
         ordering = ['-id']
@@ -62,7 +71,7 @@ class Review(models.Model):
         MyUser, on_delete=models.CASCADE, related_name='review_author'
     )
     title = models.ForeignKey(
-        Titles, on_delete=models.CASCADE, related_name='title'
+        Title, on_delete=models.CASCADE, related_name='title'
     )
     score = models.IntegerField(choices=CHOICES)
     pub_date = models.DateTimeField(
@@ -94,3 +103,11 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.text
+
+
+"""class GenreTitle(models.Model):
+    title = models.ForeignKey(Title, on_delete=models.CASCADE)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.title} {self.genre}'"""

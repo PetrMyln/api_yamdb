@@ -13,7 +13,7 @@ from reviews.models import (
     Review,
     MyUser,
     Categories,
-    Titles,
+    Title,
     Genre
 )
 
@@ -38,7 +38,7 @@ class MyUserViewSet(viewsets.ModelViewSet):
     
 
 class TitlesViewSet(viewsets.ModelViewSet):
-    queryset = Titles.objects.all().order_by('id')
+    queryset = Title.objects.all().order_by('id')
     serializer_class = TitlesSerializer
     pagination_class = PageNumberPagination
     #permission_classes = (AdminOrReadOnly,)
@@ -102,7 +102,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return get_object_or_404(
-            Titles,
+            Title,
             pk=self.kwargs.get('title_id')
         ).title.all()
     
@@ -110,7 +110,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
         serializer.save(
             author=self.request.user,
             title=get_object_or_404(
-                Titles,
+                Title,
                 pk=self.kwargs.get('title_id')
             )
         )

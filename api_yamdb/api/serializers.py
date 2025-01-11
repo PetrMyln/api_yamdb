@@ -5,7 +5,7 @@ from reviews.models import (
     Review,
     MyUser,
     Categories,
-    Titles,
+    Title,
     Genre
 )
 
@@ -45,7 +45,7 @@ class TitlesSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = ('name', 'year', 'category', 'genre',)
-        model = Titles
+        model = Title
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
