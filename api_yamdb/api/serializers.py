@@ -106,5 +106,4 @@ class TitleSerializersCreateUpdate(serializers.ModelSerializer):
                   # 'rating',
                   'genre',
                   'category',)
-
         model = Title
