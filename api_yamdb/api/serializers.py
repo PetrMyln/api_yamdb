@@ -96,22 +96,28 @@ class ReviewSerializer(serializers.ModelSerializer):
 class TitlesSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     genre = GenreSerializer(many=True)
-
-    # rating = serializers.IntegerField()
+    rating = serializers.SerializerMethodField()
 
     class Meta:
         fields = ('id',
                   'name',
                   'year',
                   'description',
-                  # 'rating',
+                  'rating',
                   'genre',
                   'category',)
 
         model = Title
 
-
-
+    def get_rating(self, obj):
+        total_rating = 0
+        total_reviews = 0
+        for review in Review.objects.filter(title_id=obj.id):
+            total_reviews += 1
+            total_rating += int(review.score)
+        if total_reviews == 0:
+            return "Обзоров на это произведение еще нет"
+        return round(total_rating / total_reviews)
 
 
 class TitleSerializersCreateUpdate(serializers.ModelSerializer):
@@ -125,23 +131,24 @@ class TitleSerializersCreateUpdate(serializers.ModelSerializer):
         many=True,
         queryset=Genre.objects.all(),
     )
+    rating = serializers.SerializerMethodField()
 
     class Meta:
         fields = ('id',
                   'name',
                   'year',
                   'description',
-                  # 'rating',
+                  'rating',
                   'genre',
                   'category',)
         model = Title
-
-    def get_score(self, obj):
-        total_score = 0
+ 
+    def get_rating(self, obj):
+        total_rating = 0
         total_reviews = 0
         for review in Review.objects.filter(title_id=obj.id):
             total_reviews += 1
-            total_score += int(review.score)
+            total_rating += int(review.score)
         if total_reviews == 0:
             return "Обзоров на это произведение еще нет"
-        return round(total_score / total_reviews)
+        return round(total_rating / total_reviews)
