@@ -1,6 +1,5 @@
 from django.db import models
 
-
 from users.models import MyUser
 
 CHOICES = ((score, score) for score in range(11))
@@ -85,8 +84,6 @@ class Review(models.Model):
                 fields=('author', 'title'),
                 name='unique_author_title'
             )]
-
-
 
 
 class Comment(models.Model):

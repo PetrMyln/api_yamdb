@@ -1,9 +1,7 @@
-from django.db import IntegrityError
 from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-
-from users.validators import validate_username
 
 from reviews.models import (
     Category,
@@ -13,6 +11,7 @@ from reviews.models import (
     Review,
     Title,
 )
+from users.validators import validate_username
 
 
 class AuthSerializer(serializers.Serializer):

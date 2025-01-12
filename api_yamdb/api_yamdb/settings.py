@@ -5,7 +5,6 @@ from datetime import timedelta
 import os
 
 
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -29,10 +28,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'django_filters',
-    #'djoser',
-    'users',
     'api',
     'reviews',
+    'users',
 ]
 
 MIDDLEWARE = [

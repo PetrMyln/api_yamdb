@@ -1,6 +1,6 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.db import models
 
 from .validators import validate_username
 
@@ -43,7 +43,7 @@ class MyUser(AbstractUser):
     @property
     def is_moderator(self):
         return self.is_staff or self.role == self.Role.MODERATOR.value
-    
+
     @property
     def is_user(self):
         return self.is_user or self.role == self.Role.USER.value

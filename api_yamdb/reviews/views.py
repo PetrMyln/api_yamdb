@@ -1,6 +1,4 @@
-from django.shortcuts import render
-from users.models import MyUser
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import logout
 from django.http import JsonResponse
 
 

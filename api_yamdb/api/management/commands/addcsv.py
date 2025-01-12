@@ -1,17 +1,15 @@
-from django.core.management.base import BaseCommand
-
 import csv
 import sqlite3
 
+from django.core.management.base import BaseCommand
 
 from reviews.models import (
-    Comment,
-    Review,
     Category,
+    Comment,
+    Genre,
+    Review,
     Title,
-    Genre
 )
-
 from users.models import MyUser
 
 CSV_DATA = {
@@ -23,20 +21,21 @@ CSV_DATA = {
     Comment: 'comments.csv',
 }
 
-FILE_WITH_TITLES_GENRE = 'static\data\genre_title.csv'
+FILE_WITH_TITLES_GENRE = 'static\\data\\genre_title.csv'
+
 
 class Command(BaseCommand):
     help = 'Add csv files from static/data/ dir in data base'
 
     def handle(self, *args, **kwargs):
         for model, file_name in CSV_DATA.items():
-            file_name = 'static\data' + '\\' + file_name
+            file_name = 'static\\data' + '\\' + file_name
             with open(file_name, encoding='utf-8') as file:
                 rows = csv.DictReader(file)
                 for row in rows:
                     try:
-                        a = model.objects.create(**row)
-                    except Exception as e:
+                        model.objects.create(**row).save()
+                    except Exception:
                         pass
         con = sqlite3.connect('db.sqlite3')
         cur = con.cursor()

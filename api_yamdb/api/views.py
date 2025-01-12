@@ -1,14 +1,13 @@
 from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
-from django.db.models import Avg
 import django_filters
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
-from rest_framework import permissions, status, filters
+from rest_framework import filters, permissions, status
 from rest_framework.decorators import action
-from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.mixins import (
     CreateModelMixin,
     DestroyModelMixin,
@@ -24,29 +23,29 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from api.permissions import (
     AdminOrReadOnly,
+    UserOrModeratorOrReadOnly,
     UserPermission,
-    UserOrModeratorOrReadOnly
 )
 
 
 from reviews.models import (
-    Comment,
-    Review,
-    MyUser,
     Category,
+    Comment,
+    Genre,
+    MyUser,
+    Review,
     Title,
-    Genre
 )
 
 from api.serializers import (
-    CommentSerializer,
-    MyUserSerializer,
-    TitlesSerializer,
-    ReviewSerializer,
-    CategorySerializer,
-    GenreSerializer,
-    TitleSerializersCreateUpdate,
     AuthSerializer,
+    CategorySerializer,
+    CommentSerializer,
+    GenreSerializer,
+    MyUserSerializer,
+    ReviewSerializer,
+    TitlesSerializer,
+    TitleSerializersCreateUpdate,
     TokenSerializer
 
 )
