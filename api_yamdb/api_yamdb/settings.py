@@ -2,6 +2,8 @@ from pathlib import Path
 
 from datetime import timedelta
 
+import os
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -24,10 +26,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
     'django_filters',
-    'djoser',
     'api',
     'reviews',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -116,6 +119,8 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 5,
 }
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -123,3 +128,10 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=14),
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
+
+AUTH_USER_MODEL = 'users.MyUser'
+
+EMAIL_BACKEND = 'django.core.mail.backends.filbased.EmailBackend'
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
+
+SENDER_EMAIL = 'from@example.com'
