@@ -130,7 +130,6 @@ class GenreViewSet(CustomMixSet):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    """Вьюсет для комментариев."""
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = (UserOrModeratorOrReadOnly,)
@@ -153,7 +152,6 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    """Вьюсет для отзывов."""
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = (UserOrModeratorOrReadOnly,)
@@ -201,7 +199,6 @@ class TokenView(TokenObtainPairView):
 
     def post(self, request):
         serializer = TokenSerializer(data=request.data)
-
         if serializer.is_valid():
             user = get_object_or_404(
                 MyUser, username=request.data.get('username')
@@ -214,6 +211,5 @@ class TokenView(TokenObtainPairView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
             token = {'token': str(AccessToken.for_user(user))}
-
             return Response(token, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
