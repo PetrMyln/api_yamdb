@@ -97,6 +97,8 @@ class CommentViewSet(viewsets.ModelViewSet):
     """Вьюсет для комментариев."""
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+    permission_classes = (UserOrReadOnly, )
+    http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_queryset(self):
         return get_object_or_404(
@@ -118,6 +120,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
     """Вьюсет для ревью."""
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    permission_classes = (UserOrReadOnly, )
+    http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_queryset(self):
         return get_object_or_404(

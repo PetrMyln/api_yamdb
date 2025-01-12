@@ -6,10 +6,6 @@ from users.models import MyUser
 CHOICES = ((score, score) for score in range(11))
 
 
-
-
-
-
 class Category(models.Model):
     name = models.CharField(max_length=256)
     slug = models.SlugField(unique=True, default='empty')
@@ -18,8 +14,6 @@ class Category(models.Model):
         ordering = ['-id']
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
-
-
 
 
 class Genre(models.Model):
@@ -56,11 +50,11 @@ class Title(models.Model):
         blank=True
     )
 
-
     class Meta:
         ordering = ['-id']
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
+
     def __str__(self):
         return self.name
 
@@ -85,6 +79,14 @@ class Review(models.Model):
     class Meta:
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
+        constraints = [
+            models.UniqueConstraint(
+                fields=('author', 'title', ),
+                name='unique_author_title'
+            )
+        ]
+        ordering = ['-pub_date']
+
 
 class Comment(models.Model):
     """Модель комментариев."""
@@ -99,10 +101,9 @@ class Comment(models.Model):
         'Дата добавления', auto_now_add=True, db_index=True)
 
     class Meta:
+        ordering = ['-pub_date']
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
 
     def __str__(self):
         return self.text
-
-
