@@ -12,7 +12,7 @@ class MyUser(AbstractUser):
         ADMIN = 'admin', 'Администратор'
 
     username = models.CharField(
-        max_length=50,
+        max_length=150,
         unique=True,
         validators=(validate_username, UnicodeUsernameValidator())
     )
