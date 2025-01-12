@@ -1,4 +1,8 @@
 from rest_framework import serializers
+from users.validators import validate_username
+from django.contrib.auth.validators import UnicodeUsernameValidator
+from users.models import MyUser
+from django.db import IntegrityError
 
 from reviews.models import (
     Comment,
@@ -10,22 +14,41 @@ from reviews.models import (
 )
 
 
+class AuthSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True, max_length=254)
+    username = serializers.CharField(required=True, max_length=150,
+                                     validators=(validate_username,
+                                                 UnicodeUsernameValidator()))
+    
+    def validate(self, data):
+        try:
+            MyUser.objects.get_or_create(
+                username=data.get('username'),
+                email=data.get('email')
+            )
+        except IntegrityError:
+            raise serializers.ValidationError(
+                'Username или email уже используется кем-то другим!'
+            )
+        return data
+    
+
+class TokenSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    confirmation_code = serializers.CharField()
+
+
 class MyUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = MyUser
         fields = (
-            'id',
             'username',
+            'email',
+            'role',
             'first_name',
             'last_name',
-            'email',
             'bio',
-            'role',
         )
-
-
-
-
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -71,7 +94,6 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class TitlesSerializer(serializers.ModelSerializer):
-
     category = CategorySerializer()
     genre = GenreSerializer(many=True)
     rating = serializers.SerializerMethodField()
@@ -120,7 +142,7 @@ class TitleSerializersCreateUpdate(serializers.ModelSerializer):
                   'genre',
                   'category',)
         model = Title
-    
+ 
     def get_rating(self, obj):
         total_rating = 0
         total_reviews = 0

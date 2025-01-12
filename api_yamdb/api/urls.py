@@ -8,6 +8,8 @@ from api.views import (
     GenreViewSet,
     ReviewViewSet,
     CommentViewSet,
+    SignUpView,
+    TokenView
 )
 
 v1_router = routers.DefaultRouter()
@@ -30,7 +32,6 @@ urlpatterns = [
     path('v1/', include(v1_router.urls)),
     path('v1/auth/', include('djoser.urls')),
     path('v1/', include('djoser.urls.jwt')),
-
-    #path('v1/auth/signup/', SignUp.as_view(),name='sign_up'),
-    #path('v1/auth/token/', GetToken.as_view(), name='get_token'),
+    path('v1/auth/signup/', SignUpView.as_view(), name='sign_up'),
+    path('v1/auth/token/', TokenView.as_view(), name='get_token'),
 ]
