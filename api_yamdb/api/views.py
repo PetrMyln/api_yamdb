@@ -20,13 +20,11 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-
 from api.permissions import (
     AdminOrReadOnly,
     UserOrModeratorOrReadOnly,
     UserPermission,
 )
-
 
 from reviews.models import (
     Category,
@@ -103,15 +101,12 @@ class TitleViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'patch', 'delete']
     filterset_class = TitleFilter
     filter_backends = (DjangoFilterBackend, OrderingFilter)
+    pagination_class = PageNumberPagination
 
     def get_serializer_class(self):
         if self.action in ('create', 'partial_update'):
             return TitleSerializersCreateUpdate
         return TitlesSerializer
-
-
-"""    def get_queryset(self):
-        return Title.objects.annotate(rating=Avg('reviews__score'))"""
 
 
 class CategoryViewSet(CustomMixSet):
@@ -138,7 +133,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     """Вьюсет для комментариев."""
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = (UserOrModeratorOrReadOnly, )
+    permission_classes = (UserOrModeratorOrReadOnly,)
     http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_queryset(self):
@@ -161,7 +156,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     """Вьюсет для отзывов."""
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = (UserOrModeratorOrReadOnly, )
+    permission_classes = (UserOrModeratorOrReadOnly,)
     http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_queryset(self):
@@ -212,7 +207,7 @@ class TokenView(TokenObtainPairView):
                 MyUser, username=request.data.get('username')
             )
             if not default_token_generator.check_token(
-                user, request.data.get('confirmation_code')
+                    user, request.data.get('confirmation_code')
             ):
                 return Response(
                     'Неверный confirmation_code',
