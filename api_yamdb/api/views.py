@@ -1,29 +1,33 @@
-from django.db.models import Avg
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets
-from django.shortcuts import get_object_or_404
-from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework.mixins import ListModelMixin, CreateModelMixin, \
-    DestroyModelMixin, RetrieveModelMixin
-from rest_framework.pagination import PageNumberPagination
-
-from rest_framework.views import APIView
-from rest_framework import permissions, status, filters
-from django.contrib.auth.tokens import default_token_generator
+from django.conf import settings
 from django.core.mail import send_mail
+from django.contrib.auth.tokens import default_token_generator
+from django.db.models import Avg
+import django_filters
+from django_filters.rest_framework import DjangoFilterBackend
+from django.shortcuts import get_object_or_404
+from rest_framework import viewsets
+from rest_framework import permissions, status, filters
+from rest_framework.decorators import action
+from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.mixins import (
+    CreateModelMixin,
+    DestroyModelMixin,
+    ListModelMixin,
+)
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.viewsets import GenericViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework_simplejwt.views import TokenObtainPairView
-from django.conf import settings
-from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail
-from rest_framework.decorators import action
-from rest_framework.permissions import IsAdminUser
-from rest_framework.viewsets import GenericViewSet
-import django_filters
 
-from api.permissions import AdminOrReadOnly, NotAnyOne, Admin, UserOrReadOnly
-from api.permissions import AdminOrReadOnly, UserPermission
+
+from api.permissions import (
+    AdminOrReadOnly,
+    UserPermission,
+    UserOrModeratorOrReadOnly
+)
+
 
 from reviews.models import (
     Comment,
@@ -40,9 +44,9 @@ from api.serializers import (
     TitlesSerializer,
     ReviewSerializer,
     CategorySerializer,
-    GenreSerializer, 
-   TitleSerializersCreateUpdate,
-      AuthSerializer,
+    GenreSerializer,
+    TitleSerializersCreateUpdate,
+    AuthSerializer,
     TokenSerializer
 
 )
@@ -78,7 +82,7 @@ class MyUserViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
     def update(self, request, *args, **kwargs):
         if request.method == 'PUT':
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -135,7 +139,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     """Вьюсет для комментариев."""
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = (UserOrReadOnly, )
+    permission_classes = (UserOrModeratorOrReadOnly, )
     http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_queryset(self):
@@ -149,16 +153,16 @@ class CommentViewSet(viewsets.ModelViewSet):
             author=self.request.user,
             review=get_object_or_404(
                 Review,
-                pk=self.kwargs.getself.kwargs.get('review_id')
+                pk=self.kwargs.get('review_id')
             )
         )
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    """Вьюсет для ревью."""
+    """Вьюсет для отзывов."""
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = (UserOrReadOnly, )
+    permission_classes = (UserOrModeratorOrReadOnly, )
     http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_queryset(self):
@@ -219,4 +223,3 @@ class TokenView(TokenObtainPairView):
 
             return Response(token, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-

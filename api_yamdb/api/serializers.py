@@ -1,16 +1,16 @@
-from rest_framework import serializers
-from users.validators import validate_username
+from django.db import IntegrityError
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from users.models import MyUser
-from django.db import IntegrityError
+from users.validators import validate_username
+from rest_framework import serializers
 
 from reviews.models import (
-    Comment,
-    Review,
-    MyUser,
     Category,
+    Comment,
+    Genre,
+    MyUser,
+    Review,
     Title,
-    Genre
 )
 
 
@@ -19,7 +19,7 @@ class AuthSerializer(serializers.Serializer):
     username = serializers.CharField(required=True, max_length=150,
                                      validators=(validate_username,
                                                  UnicodeUsernameValidator()))
-    
+
     def validate(self, data):
         try:
             MyUser.objects.get_or_create(
@@ -31,7 +31,7 @@ class AuthSerializer(serializers.Serializer):
                 'Username или email уже используется кем-то другим!'
             )
         return data
-    
+
 
 class TokenSerializer(serializers.Serializer):
     username = serializers.CharField()
@@ -82,7 +82,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели комментариев."""
+    """Сериализатор для модели отзывов."""
     author = serializers.SlugRelatedField(
         read_only=True, slug_field='username'
     )
@@ -116,7 +116,7 @@ class TitlesSerializer(serializers.ModelSerializer):
             total_reviews += 1
             total_rating += int(review.score)
         if total_reviews == 0:
-            return "Обзоров на это произведение еще нет"
+            return None
         return round(total_rating / total_reviews)
 
 
@@ -142,7 +142,7 @@ class TitleSerializersCreateUpdate(serializers.ModelSerializer):
                   'genre',
                   'category',)
         model = Title
- 
+
     def get_rating(self, obj):
         total_rating = 0
         total_reviews = 0
@@ -150,5 +150,5 @@ class TitleSerializersCreateUpdate(serializers.ModelSerializer):
             total_reviews += 1
             total_rating += int(review.score)
         if total_reviews == 0:
-            return "Обзоров на это произведение еще нет"
+            return None
         return round(total_rating / total_reviews)
