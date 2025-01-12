@@ -49,8 +49,8 @@ class Command(BaseCommand):
         cur.execute('''
         CREATE TABLE IF NOT EXISTS genre_title (
         id INTEGER PRIMARY KEY,
-        title_id TEXT  NOT NULL,
-        genre_id TEXT  NOT NULL
+        title_id INTEGER  NOT NULL,
+        genre_id INTEGER  NOT NULL
         );
         ''')
         con.commit()
