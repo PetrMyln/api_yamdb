@@ -8,8 +8,8 @@ from reviews.models import (
     Comment,
     Review,
     MyUser,
-    Categories,
-    Titles,
+    Category,
+    Title,
     Genre
 )
 
@@ -51,33 +51,22 @@ class MyUserSerializer(serializers.ModelSerializer):
         )
 
 
-class TitlesSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        fields = ('id', 'name', 'year', 'category', 'genre',)
-        model = Titles
-
-
-class CategoriesSerializer(serializers.ModelSerializer):
-
+class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('name', 'slug')
-        model = Categories
-        ordering = ['-id']
-
-    def validate(self,data):
-        if "name" not in data or "slug" not in data:
-            return False
-        return data
+        model = Category
+        # ordering = ['-id']
 
 
-
+class CategoryField(serializers.SlugRelatedField):
+    def to_representation(self, value):
+        serializer = CategorySerializer(value)
+        return serializer.data
 
 
 class GenreSerializer(serializers.ModelSerializer):
-
     class Meta:
-        fields = ('id', 'name', 'slug')
+        fields = ('name', 'slug')
         model = Genre
 
 
@@ -88,7 +77,7 @@ class CommentSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = ('id', 'text', 'author', 'created')
+        fields = ('id', 'text', 'author', 'pub_date')
         model = Comment
 
 
@@ -102,3 +91,57 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = ('id', 'text', 'author', 'title', 'score', 'pub_date')
         model = Review
         read_only_fields = ('title',)
+
+
+class TitlesSerializer(serializers.ModelSerializer):
+    category = CategorySerializer()
+    genre = GenreSerializer(many=True)
+
+    # rating = serializers.IntegerField()
+
+    class Meta:
+        fields = ('id',
+                  'name',
+                  'year',
+                  'description',
+                  # 'rating',
+                  'genre',
+                  'category',)
+
+        model = Title
+
+
+
+
+
+class TitleSerializersCreateUpdate(serializers.ModelSerializer):
+    category = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Category.objects.all(),
+    )
+
+    genre = serializers.SlugRelatedField(
+        slug_field='slug',
+        many=True,
+        queryset=Genre.objects.all(),
+    )
+
+    class Meta:
+        fields = ('id',
+                  'name',
+                  'year',
+                  'description',
+                  # 'rating',
+                  'genre',
+                  'category',)
+        model = Title
+
+    def get_score(self, obj):
+        total_score = 0
+        total_reviews = 0
+        for review in Review.objects.filter(title_id=obj.id):
+            total_reviews += 1
+            total_score += int(review.score)
+        if total_reviews == 0:
+            return "Обзоров на это произведение еще нет"
+        return round(total_score / total_reviews)
