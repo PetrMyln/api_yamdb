@@ -33,7 +33,7 @@ class Genre(models.Model):
 
 
 class Title(models.Model):
-    name = models.CharField(max_length=256)
+    name = models.CharField(max_length=LENGTH_256)
     year = models.SmallIntegerField(
         validators=[MaxValueValidator(date_year())]
     )
