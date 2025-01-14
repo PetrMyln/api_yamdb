@@ -7,7 +7,8 @@ from reviews.models import (
     Review,
     Title,
 )
-# Register your models here.
+
+
 admin.site.register(Category)
 admin.site.register(Comment)
 admin.site.register(Genre)

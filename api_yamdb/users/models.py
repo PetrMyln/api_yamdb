@@ -1,7 +1,8 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.db import models
 
+from api_yamdb.constant import LENGTH_150, LENGTH_254, LENGTH_50
 from .validators import validate_username
 
 
@@ -12,18 +13,18 @@ class MyUser(AbstractUser):
         ADMIN = 'admin', 'Администратор'
 
     username = models.CharField(
-        max_length=150,
+        max_length=LENGTH_150,
         unique=True,
         validators=(validate_username, UnicodeUsernameValidator())
     )
     email = models.EmailField(
-        max_length=254,
+        max_length=LENGTH_254,
         unique=True,
         verbose_name='Электронная почта',
         help_text='Укажите электронную почту'
     )
     role = models.CharField(
-        max_length=50,
+        max_length=LENGTH_50,
         choices=Role.choices,
         default=Role.USER,
         verbose_name='Роль',
@@ -43,7 +44,7 @@ class MyUser(AbstractUser):
     @property
     def is_moderator(self):
         return self.is_staff or self.role == self.Role.MODERATOR.value
-    
+
     @property
     def is_user(self):
         return self.is_user or self.role == self.Role.USER.value

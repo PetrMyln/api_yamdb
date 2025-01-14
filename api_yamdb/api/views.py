@@ -1,14 +1,14 @@
+import django_filters
 from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
 from django.db.models import Avg
-import django_filters
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
-from rest_framework import permissions, status, filters
+from rest_framework import filters, permissions, status
 from rest_framework.decorators import action
-from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.mixins import (
     CreateModelMixin,
     DestroyModelMixin,
@@ -21,45 +21,47 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-
+from api.filters import TitleFilter
 from api.permissions import (
     AdminOrReadOnly,
-    UserPermission,
-    UserOrModeratorOrReadOnly
+    UserPermission, UserOrModeratorOrReadOnly,
 )
-
-
 from reviews.models import (
-    Comment,
-    Review,
-    MyUser,
     Category,
+    Comment,
+    Genre,
+    MyUser,
+    Review,
     Title,
-    Genre
 )
-
 from api.serializers import (
-    CommentSerializer,
-    MyUserSerializer,
-    TitlesSerializer,
-    ReviewSerializer,
-    CategorySerializer,
-    GenreSerializer,
-    TitleSerializersCreateUpdate,
     AuthSerializer,
+    CategorySerializer,
+    CommentSerializer,
+    GenreSerializer,
+    CustomUserSerializer,
+    ReviewSerializer,
+    TitlesSerializer,
+    TitleSerializersCreateUpdate,
     TokenSerializer
 
 )
 
 
-class CustomMixSet(ListModelMixin, CreateModelMixin,
-                   DestroyModelMixin, GenericViewSet):
-    pass
-
+class MixinSet(ListModelMixin, CreateModelMixin,
+               DestroyModelMixin, GenericViewSet):
+    pagination_class = PageNumberPagination
+    filter_backends = (SearchFilter,)
+    search_fields = ('name',)
+    lookup_field = 'slug'
+    permission_classes = (AdminOrReadOnly,)
 
 class MyUserViewSet(viewsets.ModelViewSet):
+    #Использовать приставку Custom в неймингах - плохой тон. Так же как и My.
+    # Все переменные/функции/классы/модули "кастомные" и "твои",
+    # лишний раз об этом говорить не стоит.
     queryset = MyUser.objects.order_by('pk')
-    serializer_class = MyUserSerializer
+    serializer_class = CustomUserSerializer
     permission_classes = (UserPermission,)
     lookup_field = 'username'
     filter_backends = (filters.SearchFilter,)
@@ -77,6 +79,9 @@ class MyUserViewSet(viewsets.ModelViewSet):
             partial=True
         )
         if serializer.is_valid():
+            #У метода is_valid есть параметр-флаг raise_exception,
+            # если его поставить в True, то можно избавиться от проверок,
+            # метод вернет ошибки валидации. Можно почитать тут.
             if self.request.method == 'PATCH':
                 serializer.validated_data.pop('role', None)
             serializer.save()
@@ -89,13 +94,7 @@ class MyUserViewSet(viewsets.ModelViewSet):
         return super().update(request, *args, **kwargs)
 
 
-class TitleFilter(django_filters.FilterSet):
-    category = django_filters.CharFilter(field_name="category__slug")
-    genre = django_filters.CharFilter(field_name="genre__slug")
 
-    class Meta:
-        model = Title
-        fields = ('name', 'year', 'category', 'genre')
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -104,6 +103,11 @@ class TitleViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'patch', 'delete']
     filterset_class = TitleFilter
     filter_backends = (DjangoFilterBackend, OrderingFilter)
+    pagination_class = PageNumberPagination
+
+    def get_queryset(self):
+        return Title.objects.annotate(rating=Avg('title__score'))
+
 
     def get_serializer_class(self):
         if self.action in ('create', 'partial_update'):
@@ -111,35 +115,23 @@ class TitleViewSet(viewsets.ModelViewSet):
         return TitlesSerializer
 
 
-"""    def get_queryset(self):
-        return Title.objects.annotate(rating=Avg('reviews__score'))"""
 
-
-class CategoryViewSet(CustomMixSet):
+class CategoryViewSet(MixinSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    pagination_class = PageNumberPagination
-    filter_backends = (SearchFilter,)
-    search_fields = ('name',)
-    lookup_field = 'slug'
-    permission_classes = (AdminOrReadOnly,)
 
 
-class GenreViewSet(CustomMixSet):
+
+class GenreViewSet(MixinSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    pagination_class = PageNumberPagination
-    filter_backends = (SearchFilter,)
-    search_fields = ('name',)
-    lookup_field = 'slug'
-    permission_classes = (AdminOrReadOnly,)
+
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    """Вьюсет для комментариев."""
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = (UserOrModeratorOrReadOnly, )
+    permission_classes = (UserOrModeratorOrReadOnly,)
     http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_queryset(self):
@@ -159,10 +151,9 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    """Вьюсет для отзывов."""
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = (UserOrModeratorOrReadOnly, )
+    permission_classes = (UserOrModeratorOrReadOnly,)
     http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_queryset(self):
@@ -207,19 +198,17 @@ class TokenView(TokenObtainPairView):
 
     def post(self, request):
         serializer = TokenSerializer(data=request.data)
-
         if serializer.is_valid():
             user = get_object_or_404(
                 MyUser, username=request.data.get('username')
             )
             if not default_token_generator.check_token(
-                user, request.data.get('confirmation_code')
+                    user, request.data.get('confirmation_code')
             ):
                 return Response(
                     'Неверный confirmation_code',
                     status=status.HTTP_400_BAD_REQUEST
                 )
             token = {'token': str(AccessToken.for_user(user))}
-
             return Response(token, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

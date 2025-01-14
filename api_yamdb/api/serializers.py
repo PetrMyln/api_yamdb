@@ -1,9 +1,9 @@
-from django.db import IntegrityError
 from django.contrib.auth.validators import UnicodeUsernameValidator
-from users.models import MyUser
-from users.validators import validate_username
+from django.db import IntegrityError
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
+from api_yamdb.constant import LENGTH_254, LENGTH_150
 from reviews.models import (
     Category,
     Comment,
@@ -12,17 +12,22 @@ from reviews.models import (
     Review,
     Title,
 )
+from users.validators import validate_username
 
 
 class AuthSerializer(serializers.Serializer):
-    email = serializers.EmailField(required=True, max_length=254)
-    username = serializers.CharField(required=True, max_length=150,
+    email = serializers.EmailField(required=True, max_length=LENGTH_254)
+    username = serializers.CharField(required=True, max_length=LENGTH_150,
                                      validators=(validate_username,
                                                  UnicodeUsernameValidator()))
 
     def validate(self, data):
         try:
             MyUser.objects.get_or_create(
+                #ANTON
+                # Метод validate ничего создавать не должен, его задача п
+                # роверять валидность данных. За создание в сериализаторе
+                # отвечает метод create.
                 username=data.get('username'),
                 email=data.get('email')
             )
@@ -34,11 +39,15 @@ class AuthSerializer(serializers.Serializer):
 
 
 class TokenSerializer(serializers.Serializer):
+    #ANTON
+    #Использовать приставку Custom в неймингах - плохой тон.
+    # Так же как и My. Все переменные/функции/классы/модули "кастомные" и
+    # "твои", лишний раз об этом говорить не стоит.
     username = serializers.CharField()
     confirmation_code = serializers.CharField()
 
 
-class MyUserSerializer(serializers.ModelSerializer):
+class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = MyUser
         fields = (
@@ -55,13 +64,6 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('name', 'slug')
         model = Category
-        # ordering = ['-id']
-
-
-class CategoryField(serializers.SlugRelatedField):
-    def to_representation(self, value):
-        serializer = CategorySerializer(value)
-        return serializer.data
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -71,7 +73,6 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели комментариев."""
     author = serializers.SlugRelatedField(
         read_only=True, slug_field='username'
     )
@@ -82,42 +83,49 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели отзывов."""
     author = serializers.SlugRelatedField(
         read_only=True, slug_field='username'
     )
 
     class Meta:
+        # DEN
+        # Сверяемся со спецификацией, вывод не соответствует ТЗ.
         fields = ('id', 'text', 'author', 'title', 'score', 'pub_date')
         model = Review
         read_only_fields = ('title',)
+
+    def validate(self, attrs):
+        author = self.context['request'].user.pk
+        title_id = self.context['request'].parser_context['kwargs'].get(
+            'title_id')
+        title_obj = get_object_or_404(Title, id=title_id)
+        rule_obj_exists = title_obj.title.filter(author=author).exists()
+        rule_request = self.context['request'].method
+        if rule_request == 'POST' and rule_obj_exists:
+            raise serializers.ValidationError(
+                f'Создать повтороно отзыв {title_obj.name} невозможно'
+            )
+        return super().validate(attrs)
 
 
 class TitlesSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     genre = GenreSerializer(many=True)
-    rating = serializers.SerializerMethodField()
 
     class Meta:
         fields = ('id',
                   'name',
                   'year',
                   'description',
-                  'rating',
+
                   'genre',
                   'category',)
 
         model = Title
 
-    def get_rating(self, obj):
-        total_rating = 0
-        total_reviews = 0
-        for review in Review.objects.filter(title_id=obj.id):
-            total_reviews += 1
-            total_rating += int(review.score)
-        if total_reviews == 0:
-            return None
-        return round(total_rating / total_reviews)
+
+
+
 
 
 class TitleSerializersCreateUpdate(serializers.ModelSerializer):
@@ -131,7 +139,18 @@ class TitleSerializersCreateUpdate(serializers.ModelSerializer):
         many=True,
         queryset=Genre.objects.all(),
     )
+    #DEN
+    # Сейчас можно создать произведение без жанров
+    # (просто передать пустой список). Нужно добавить еще параметр для поля
+    # и устранить этот промах.
+    # https://stackoverflow.com/questions/52621599/what-are-the-minimum-options-required-to-safely-allow-m2m-field-empty-in-drf-ser
     rating = serializers.SerializerMethodField()
+    #DEN
+    # Лишнее поле.
+    # При успешном Создании/Обновлении вывод не соответствует ТЗ. Нужно
+    # добавить сюда метод, который позволит выводить
+    # информацию как при гет-запросе.
+    # https://www.django-rest-framework.org/api-guide/relations/#custom-relational-fields
 
     class Meta:
         fields = ('id',
@@ -152,3 +171,6 @@ class TitleSerializersCreateUpdate(serializers.ModelSerializer):
         if total_reviews == 0:
             return None
         return round(total_rating / total_reviews)
+
+
+

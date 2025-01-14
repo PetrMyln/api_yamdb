@@ -2,14 +2,14 @@ from django.urls import include, path
 from rest_framework import routers
 
 from api.views import (
-    MyUserViewSet,
-    TitleViewSet,
+    CommentViewSet,
     CategoryViewSet,
     GenreViewSet,
+    MyUserViewSet,
     ReviewViewSet,
-    CommentViewSet,
     SignUpView,
-    TokenView
+    TokenView,
+    TitleViewSet,
 )
 
 v1_router = routers.DefaultRouter()
@@ -30,8 +30,10 @@ v1_router.register(
 
 urlpatterns = [
     path('v1/', include(v1_router.urls)),
-    path('v1/auth/', include('djoser.urls')),
-    path('v1/', include('djoser.urls.jwt')),
     path('v1/auth/signup/', SignUpView.as_view(), name='sign_up'),
     path('v1/auth/token/', TokenView.as_view(), name='get_token'),
+    #ANTON
+    # Урлы с одинаковым префиксом выносим в отдельный
+    # список. Будет один список urlpatterns, в нем остается
+    # префикс версии, и инклюдом подключаем список, в котором останется два path, ведущий на роутер и на auth/.
 ]
