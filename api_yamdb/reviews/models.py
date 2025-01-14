@@ -14,7 +14,7 @@ class Category(models.Model):
     slug = models.SlugField(unique=True)
 
     class Meta:
-        ordering = ['name']
+        ordering = ['-id']
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
@@ -24,7 +24,7 @@ class Genre(models.Model):
     slug = models.SlugField(unique=True, max_length=LENGTH_50)
 
     class Meta:
-        ordering = ['name']
+        ordering = ['-id']
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
@@ -56,7 +56,7 @@ class Title(models.Model):
     )
 
     class Meta:
-        ordering = ['name']
+        ordering = ['-id']
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
 
@@ -83,7 +83,7 @@ class Review(models.Model):
     class Meta:
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
-        ordering = ['title']
+        ordering = ['-id']
         constraints = [
             models.UniqueConstraint(
                 fields=('author', 'title'),
