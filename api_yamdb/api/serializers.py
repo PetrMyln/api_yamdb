@@ -58,12 +58,6 @@ class CategorySerializer(serializers.ModelSerializer):
         # ordering = ['-id']
 
 
-class CategoryField(serializers.SlugRelatedField):
-    def to_representation(self, value):
-        serializer = CategorySerializer(value)
-        return serializer.data
-
-
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('name', 'slug')
