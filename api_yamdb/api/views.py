@@ -1,7 +1,8 @@
+import django_filters
 from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
-import django_filters
+from django.db.models import Avg
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
@@ -20,12 +21,11 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
+from api.filters import TitleFilter
 from api.permissions import (
     AdminOrReadOnly,
-    UserOrModeratorOrReadOnly,
-    UserPermission,
+    UserPermission, UserOrModeratorOrReadOnly,
 )
-
 from reviews.models import (
     Category,
     Comment,
@@ -34,13 +34,12 @@ from reviews.models import (
     Review,
     Title,
 )
-
 from api.serializers import (
     AuthSerializer,
     CategorySerializer,
     CommentSerializer,
     GenreSerializer,
-    MyUserSerializer,
+    CustomUserSerializer,
     ReviewSerializer,
     TitlesSerializer,
     TitleSerializersCreateUpdate,
@@ -49,14 +48,17 @@ from api.serializers import (
 )
 
 
-class CustomMixSet(ListModelMixin, CreateModelMixin,
-                   DestroyModelMixin, GenericViewSet):
-    pass
-
+class MixinSet(ListModelMixin, CreateModelMixin,
+               DestroyModelMixin, GenericViewSet):
+    pagination_class = PageNumberPagination
+    filter_backends = (SearchFilter,)
+    search_fields = ('name',)
+    lookup_field = 'slug'
+    permission_classes = (AdminOrReadOnly,)
 
 class MyUserViewSet(viewsets.ModelViewSet):
     queryset = MyUser.objects.order_by('pk')
-    serializer_class = MyUserSerializer
+    serializer_class = CustomUserSerializer
     permission_classes = (UserPermission,)
     lookup_field = 'username'
     filter_backends = (filters.SearchFilter,)
@@ -86,13 +88,7 @@ class MyUserViewSet(viewsets.ModelViewSet):
         return super().update(request, *args, **kwargs)
 
 
-class TitleFilter(django_filters.FilterSet):
-    category = django_filters.CharFilter(field_name="category__slug")
-    genre = django_filters.CharFilter(field_name="genre__slug")
 
-    class Meta:
-        model = Title
-        fields = ('name', 'year', 'category', 'genre')
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -103,30 +99,27 @@ class TitleViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend, OrderingFilter)
     pagination_class = PageNumberPagination
 
+    def get_queryset(self):
+        return Title.objects.annotate(rating=Avg('title__score'))
+
+
     def get_serializer_class(self):
         if self.action in ('create', 'partial_update'):
             return TitleSerializersCreateUpdate
         return TitlesSerializer
 
 
-class CategoryViewSet(CustomMixSet):
+
+class CategoryViewSet(MixinSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    pagination_class = PageNumberPagination
-    filter_backends = (SearchFilter,)
-    search_fields = ('name',)
-    lookup_field = 'slug'
-    permission_classes = (AdminOrReadOnly,)
 
 
-class GenreViewSet(CustomMixSet):
+
+class GenreViewSet(MixinSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    pagination_class = PageNumberPagination
-    filter_backends = (SearchFilter,)
-    search_fields = ('name',)
-    lookup_field = 'slug'
-    permission_classes = (AdminOrReadOnly,)
+
 
 
 class CommentViewSet(viewsets.ModelViewSet):

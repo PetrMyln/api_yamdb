@@ -1,26 +1,27 @@
 from django.db import models
 
+from api_yamdb.constant import LENGTH_256, LENGTH_150, LENGTH_50
 from users.models import MyUser
 
 CHOICES = ((score, score) for score in range(11))
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=256)
-    slug = models.SlugField(unique=True, default='empty')
+    name = models.CharField(max_length=LENGTH_256)
+    slug = models.SlugField(unique=True)
 
     class Meta:
-        ordering = ['-id']
+        ordering = ['name']
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
 
 class Genre(models.Model):
-    name = models.CharField(max_length=150)
-    slug = models.SlugField(unique=True)
+    name = models.CharField(max_length=LENGTH_256)
+    slug = models.SlugField(unique=True, max_length=LENGTH_50)
 
     class Meta:
-        ordering = ['-id']
+        ordering = ['name']
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
@@ -30,13 +31,13 @@ class Genre(models.Model):
 
 class Title(models.Model):
     name = models.CharField(max_length=256)
-    year = models.IntegerField()
+    year = models.SmallIntegerField()
     category = models.ForeignKey(
         Category,
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
-        related_name='categorys',
+        related_name='categories',
     )
     genre = models.ManyToManyField(
         Genre,
@@ -44,13 +45,13 @@ class Title(models.Model):
         related_name='genres',
     )
     description = models.CharField(
-        max_length=256,
+        max_length=LENGTH_256,
         null=True,
         blank=True
     )
 
     class Meta:
-        ordering = ['-id']
+        ordering = ['name']
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
 
@@ -59,7 +60,6 @@ class Title(models.Model):
 
 
 class Review(models.Model):
-    """Модель отзывов."""
     text = models.TextField()
     author = models.ForeignKey(
         MyUser, on_delete=models.CASCADE, related_name='review_author'
@@ -78,7 +78,7 @@ class Review(models.Model):
     class Meta:
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
-        ordering = ['-pub_date']
+        ordering = ['title']
         constraints = [
             models.UniqueConstraint(
                 fields=('author', 'title'),
@@ -87,7 +87,6 @@ class Review(models.Model):
 
 
 class Comment(models.Model):
-    """Модель комментариев."""
     author = models.ForeignKey(
         MyUser, on_delete=models.CASCADE, related_name='comment_author'
     )

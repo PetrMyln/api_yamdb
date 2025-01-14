@@ -3,6 +3,7 @@ from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
+from api_yamdb.constant import LENGTH_254, LENGTH_150
 from reviews.models import (
     Category,
     Comment,
@@ -15,8 +16,8 @@ from users.validators import validate_username
 
 
 class AuthSerializer(serializers.Serializer):
-    email = serializers.EmailField(required=True, max_length=254)
-    username = serializers.CharField(required=True, max_length=150,
+    email = serializers.EmailField(required=True, max_length=LENGTH_254)
+    username = serializers.CharField(required=True, max_length=LENGTH_150,
                                      validators=(validate_username,
                                                  UnicodeUsernameValidator()))
 
@@ -38,7 +39,7 @@ class TokenSerializer(serializers.Serializer):
     confirmation_code = serializers.CharField()
 
 
-class MyUserSerializer(serializers.ModelSerializer):
+class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = MyUser
         fields = (
@@ -55,7 +56,6 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('name', 'slug')
         model = Category
-        # ordering = ['-id']
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -101,28 +101,21 @@ class ReviewSerializer(serializers.ModelSerializer):
 class TitlesSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     genre = GenreSerializer(many=True)
-    rating = serializers.SerializerMethodField()
 
     class Meta:
         fields = ('id',
                   'name',
                   'year',
                   'description',
-                  'rating',
+
                   'genre',
                   'category',)
 
         model = Title
 
-    def get_rating(self, obj):
-        total_rating = 0
-        total_reviews = 0
-        for review in Review.objects.filter(title_id=obj.id):
-            total_reviews += 1
-            total_rating += int(review.score)
-        if total_reviews == 0:
-            return None
-        return round(total_rating / total_reviews)
+
+
+
 
 
 class TitleSerializersCreateUpdate(serializers.ModelSerializer):
@@ -157,3 +150,6 @@ class TitleSerializersCreateUpdate(serializers.ModelSerializer):
         if total_reviews == 0:
             return None
         return round(total_rating / total_reviews)
+
+
+
