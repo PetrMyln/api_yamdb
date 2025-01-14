@@ -1,3 +1,4 @@
+from django.contrib import admin
 from django.core.validators import MaxValueValidator
 from django.db import models
 
@@ -7,33 +8,49 @@ from api_yamdb.validators import date_year
 from users.models import MyUser
 
 
-
-
-class Category(models.Model):
+class BaseTitleModel(models.Model):
     name = models.CharField(max_length=LENGTH_256)
-    slug = models.SlugField(unique=True)
 
     class Meta:
-        ordering = ['-id']
-        verbose_name = 'Категория'
-        verbose_name_plural = 'Категории'
-
-
-class Genre(models.Model):
-    name = models.CharField(max_length=LENGTH_256)
-    slug = models.SlugField(unique=True, max_length=LENGTH_50)
-
-    class Meta:
-        ordering = ['-id']
-        verbose_name = 'Жанр'
-        verbose_name_plural = 'Жанры'
+        abstract = True
+        ordering = ['name']
 
     def __str__(self):
         return self.name
 
 
-class Title(models.Model):
-    name = models.CharField(max_length=LENGTH_256)
+class BaseReviewModel(models.Model):
+    text = models.TextField()
+    pub_date = models.DateTimeField(
+        'Дата добавления', auto_now_add=True, db_index=True
+    )
+
+    class Meta:
+        abstract = True
+        ordering = ['-pub_date']
+
+    def __str__(self):
+        return self.text
+
+
+class Category(BaseTitleModel):
+    slug = models.SlugField(unique=True)
+
+    class Meta(BaseTitleModel.Meta):
+        ordering = ['name']
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
+
+
+class Genre(BaseTitleModel):
+    slug = models.SlugField(unique=True, max_length=LENGTH_50)
+
+    class Meta(BaseTitleModel.Meta):
+        verbose_name = 'Жанр'
+        verbose_name_plural = 'Жанры'
+
+
+class Title(BaseTitleModel):
     year = models.SmallIntegerField(
         validators=[MaxValueValidator(date_year())]
     )
@@ -42,12 +59,10 @@ class Title(models.Model):
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
-        related_name='titles',
     )
     genre = models.ManyToManyField(
         Genre,
         blank=True,
-        related_name='titles',
     )
     description = models.CharField(
         max_length=LENGTH_256,
@@ -55,35 +70,25 @@ class Title(models.Model):
         blank=True
     )
 
-    class Meta:
-        ordering = ['-id']
+
+    class Meta(BaseTitleModel.Meta):
+        default_related_name = 'titles'
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
 
-    def __str__(self):
-        return self.name
 
-
-class Review(models.Model):
-    text = models.TextField()
+class Review(BaseReviewModel):
     author = models.ForeignKey(
-        MyUser, on_delete=models.CASCADE, related_name='review_author'
+        MyUser, on_delete=models.CASCADE, related_name='review_authors'
     )
     title = models.ForeignKey(
-        Title, on_delete=models.CASCADE, related_name='title'
+        Title, on_delete=models.CASCADE, related_name='titles'
     )
     score = models.IntegerField(choices=CHOICES)
-    pub_date = models.DateTimeField(
-        'Дата добавления', auto_now_add=True, db_index=True
-    )
 
-    def __str__(self):
-        return self.text
-
-    class Meta:
+    class Meta(BaseReviewModel.Meta):
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
-        ordering = ['-id']
         constraints = [
             models.UniqueConstraint(
                 fields=('author', 'title'),
@@ -91,21 +96,14 @@ class Review(models.Model):
             )]
 
 
-class Comment(models.Model):
+class Comment(BaseReviewModel):
     author = models.ForeignKey(
-        MyUser, on_delete=models.CASCADE, related_name='comment_author'
+        MyUser, on_delete=models.CASCADE, related_name='comment_authors'
     )
     review = models.ForeignKey(
-        Review, on_delete=models.CASCADE, related_name='review'
+        Review, on_delete=models.CASCADE, related_name='reviews'
     )
-    text = models.TextField()
-    pub_date = models.DateTimeField(
-        'Дата добавления', auto_now_add=True, db_index=True)
 
-    class Meta:
-        ordering = ['-pub_date']
+    class Meta(BaseReviewModel.Meta):
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
-
-    def __str__(self):
-        return self.text
