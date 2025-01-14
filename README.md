@@ -77,10 +77,20 @@ python3 manage.py migrate
 ```
 python3 manage.py runserver
 ```
-Cкрипт наполнения БД:
+Cкрипт наполнения для тестового наполнения БД:
 ```
 python3 manage.py addcsv
 ```
+Если нужно заполнить БД своими данными:
+```
+1. Найдите файл addcsv.py api_yambd/managment/commands/addcsv.py.
+2. Изучите словарь CSV_DATA, и тестовые структуры таблиц в папке static/data/.
+3. Создайте файлы.
+4. Перейдите в папку api_yambd/api_yambd/ и выполните скрипт python3 manage.py addcsv
+5. Если не получилось... как говорят авторы курса по Python+ "У ВАС ВСЁ ПОЛУЧИТСЯ!!!! Мы в Вас вери!"
+```
+
+
 
 # Пример запроса:
 
@@ -122,5 +132,10 @@ POST
 "category": "string"
 }
 ```
+# Авторы:
+- Команда яндекс практикума, https://github.com/yandex-praktikum
+- Антон, https://github.com/HeatcleaFF
+- Денис, https://github.com/DenisTereshkov
+- Пeтр, https://github.com/PetrMyln
 
 
