@@ -1,5 +1,5 @@
-import csv
-import sqlite3
+from sqlite3 import connect, IntegrityError
+from csv import DictReader
 
 from django.core.management.base import BaseCommand
 
@@ -28,15 +28,15 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         for model, file_name in CSV_DATA.items():
-            file_name = STATIC_DIR_FOR_CSV_FILES + file_name
-            with open(file_name, encoding='utf-8') as file:
-                rows = csv.DictReader(file)
+            name = STATIC_DIR_FOR_CSV_FILES + file_name
+            with open(name, encoding='utf-8') as file:
+                rows = DictReader(file)
                 for row in rows:
                     try:
                         model.objects.create(**row).save()
                     except Exception:
                         pass
-        con = sqlite3.connect('db.sqlite3')
+        con = connect('db.sqlite3')
         cur = con.cursor()
         data_for_db = list()
 
@@ -57,7 +57,7 @@ class Command(BaseCommand):
                 'INSERT INTO genre_title VALUES(?, ?, ?)',
                 data_for_db[1:])
             con.commit()
-        except sqlite3.IntegrityError:
+        except IntegrityError:
             pass
         finally:
             con.close()
