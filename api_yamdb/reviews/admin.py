@@ -23,9 +23,10 @@ class TitleAdmin(admin.ModelAdmin):
     list_display = (
         'name',
         'year',
+        'genre',
         # 'rating',
         'description',
-        # 'genres_list',
+        'genres_list',
         'category',
     )
     list_select_related = ('category', )
@@ -41,7 +42,8 @@ class TitleAdmin(admin.ModelAdmin):
 
     # @admin.display(description='Genre list')
     # def genres_list(self, obj):
-    #     return Genre.objects.all().filter('title_id')
+       
+    #     # return Genre.objects.filter('title_id')
     #     return obj.genre
 
 class ReviewAdmin(admin.ModelAdmin):

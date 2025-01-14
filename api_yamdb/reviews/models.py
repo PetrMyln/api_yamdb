@@ -58,12 +58,10 @@ class Title(BaseTitleModel):
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
-        related_name='titles',
     )
     genre = models.ManyToManyField(
         Genre,
         blank=True,
-        related_name='genres',
     )
     description = models.CharField(
         max_length=LENGTH_256,
@@ -72,6 +70,7 @@ class Title(BaseTitleModel):
     )
 
     class Meta(BaseTitleModel.Meta):
+        default_related_name = 'titles'
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
 
