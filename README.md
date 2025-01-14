@@ -3,8 +3,22 @@
 ### Описание:
 
 ```
-Учебный проект посвящён работе с DjangoRESTAPi. 
+Учебный проект YaMDb посвящён работе с DjangoRESTAPi.
+Проект YaMDb собирает отзывы пользователей на произведения. Сами произведения в YaMDb не хранятся, здесь нельзя посмотреть фильм или послушать музыку.
 ```
+
+###Техническое описание проекта YaMDb:
+
+```
+В репозитории api_yamdb, помимо тестов, сейчас находится пустой Django-проект. По адресу http://127.0.0.1:8000/redoc/ к нему подключена документация будущего API. 
+```
+
+###Стек использованных технологий.:
+
+```
+ Python, Django RESTAPI, SQLite
+```
+
 
 ### Установка:
 
@@ -63,6 +77,50 @@ python3 manage.py migrate
 ```
 python3 manage.py runserver
 ```
+Cкрипт наполнения БД:
+```
+python3 manage.py addcsv
+```
 
+# Пример запроса:
+
+GET
+
+
+/api/v1/titles/
+```
+{
+"count": 0,
+"next": "string",
+"previous": "string",
+"results": [
+{
+"id": 0,
+"name": "string",
+"year": 0,
+"rating": 0,
+"description": "string",
+"genre": [],
+"category": {}
+}
+]
+}
+```
+
+POST
+
+/api/v1/titles/
+
+```
+{
+"name": "string",
+"year": 0,
+"description": "string",
+"genre": [
+"string"
+],
+"category": "string"
+}
+```
 
 
