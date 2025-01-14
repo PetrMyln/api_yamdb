@@ -1,9 +1,9 @@
 from django.db import models
 
-from api_yamdb.constant import LENGTH_256, LENGTH_150, LENGTH_50
+from api_yamdb.constant import CHOICES, LENGTH_256, LENGTH_150, LENGTH_50
 from users.models import MyUser
 
-CHOICES = ((score, score) for score in range(11))
+
 
 
 class Category(models.Model):
