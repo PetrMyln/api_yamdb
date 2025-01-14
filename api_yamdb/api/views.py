@@ -57,6 +57,9 @@ class MixinSet(ListModelMixin, CreateModelMixin,
     permission_classes = (AdminOrReadOnly,)
 
 class MyUserViewSet(viewsets.ModelViewSet):
+    #Использовать приставку Custom в неймингах - плохой тон. Так же как и My.
+    # Все переменные/функции/классы/модули "кастомные" и "твои",
+    # лишний раз об этом говорить не стоит.
     queryset = MyUser.objects.order_by('pk')
     serializer_class = CustomUserSerializer
     permission_classes = (UserPermission,)
@@ -76,6 +79,9 @@ class MyUserViewSet(viewsets.ModelViewSet):
             partial=True
         )
         if serializer.is_valid():
+            #У метода is_valid есть параметр-флаг raise_exception,
+            # если его поставить в True, то можно избавиться от проверок,
+            # метод вернет ошибки валидации. Можно почитать тут.
             if self.request.method == 'PATCH':
                 serializer.validated_data.pop('role', None)
             serializer.save()

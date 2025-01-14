@@ -24,6 +24,10 @@ class AuthSerializer(serializers.Serializer):
     def validate(self, data):
         try:
             MyUser.objects.get_or_create(
+                #ANTON
+                # Метод validate ничего создавать не должен, его задача п
+                # роверять валидность данных. За создание в сериализаторе
+                # отвечает метод create.
                 username=data.get('username'),
                 email=data.get('email')
             )
@@ -35,6 +39,10 @@ class AuthSerializer(serializers.Serializer):
 
 
 class TokenSerializer(serializers.Serializer):
+    #ANTON
+    #Использовать приставку Custom в неймингах - плохой тон.
+    # Так же как и My. Все переменные/функции/классы/модули "кастомные" и
+    # "твои", лишний раз об этом говорить не стоит.
     username = serializers.CharField()
     confirmation_code = serializers.CharField()
 
@@ -80,6 +88,8 @@ class ReviewSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
+        # DEN
+        # Сверяемся со спецификацией, вывод не соответствует ТЗ.
         fields = ('id', 'text', 'author', 'title', 'score', 'pub_date')
         model = Review
         read_only_fields = ('title',)
@@ -129,7 +139,18 @@ class TitleSerializersCreateUpdate(serializers.ModelSerializer):
         many=True,
         queryset=Genre.objects.all(),
     )
+    #DEN
+    # Сейчас можно создать произведение без жанров
+    # (просто передать пустой список). Нужно добавить еще параметр для поля
+    # и устранить этот промах.
+    # https://stackoverflow.com/questions/52621599/what-are-the-minimum-options-required-to-safely-allow-m2m-field-empty-in-drf-ser
     rating = serializers.SerializerMethodField()
+    #DEN
+    # Лишнее поле.
+    # При успешном Создании/Обновлении вывод не соответствует ТЗ. Нужно
+    # добавить сюда метод, который позволит выводить
+    # информацию как при гет-запросе.
+    # https://www.django-rest-framework.org/api-guide/relations/#custom-relational-fields
 
     class Meta:
         fields = ('id',

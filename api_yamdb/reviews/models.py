@@ -37,12 +37,12 @@ class Title(models.Model):
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
-        related_name='categories',
+        related_name='titles',
     )
     genre = models.ManyToManyField(
         Genre,
         blank=True,
-        related_name='genres',
+        related_name='titles',
     )
     description = models.CharField(
         max_length=LENGTH_256,
