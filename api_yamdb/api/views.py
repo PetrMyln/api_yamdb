@@ -1,4 +1,3 @@
-import django_filters
 from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
@@ -8,31 +7,18 @@ from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework import filters, permissions, status
 from rest_framework.decorators import action
-from rest_framework.filters import OrderingFilter, SearchFilter
-from rest_framework.mixins import (
-    CreateModelMixin,
-    DestroyModelMixin,
-    ListModelMixin,
-)
+from rest_framework.filters import OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.viewsets import GenericViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from api.filters import TitleFilter
+from api.mixin import MixinSet
 from api.permissions import (
     AdminOrReadOnly,
     UserPermission, UserOrModeratorOrReadOnly,
-)
-from reviews.models import (
-    Category,
-    Comment,
-    Genre,
-    MyUser,
-    Review,
-    Title,
 )
 from api.serializers import (
     AuthSerializer,
@@ -44,20 +30,18 @@ from api.serializers import (
     TitlesSerializer,
     TitleSerializersCreateUpdate,
     TokenSerializer
-
+)
+from reviews.models import (
+    Category,
+    Comment,
+    Genre,
+    MyUser,
+    Review,
+    Title,
 )
 
-
-class MixinSet(ListModelMixin, CreateModelMixin,
-               DestroyModelMixin, GenericViewSet):
-    pagination_class = PageNumberPagination
-    filter_backends = (SearchFilter,)
-    search_fields = ('name',)
-    lookup_field = 'slug'
-    permission_classes = (AdminOrReadOnly,)
-
 class MyUserViewSet(viewsets.ModelViewSet):
-    #Использовать приставку Custom в неймингах - плохой тон. Так же как и My.
+    # Использовать приставку Custom в неймингах - плохой тон. Так же как и My.
     # Все переменные/функции/классы/модули "кастомные" и "твои",
     # лишний раз об этом говорить не стоит.
     queryset = MyUser.objects.order_by('pk')
@@ -79,7 +63,7 @@ class MyUserViewSet(viewsets.ModelViewSet):
             partial=True
         )
         if serializer.is_valid():
-            #У метода is_valid есть параметр-флаг raise_exception,
+            # У метода is_valid есть параметр-флаг raise_exception,
             # если его поставить в True, то можно избавиться от проверок,
             # метод вернет ошибки валидации. Можно почитать тут.
             if self.request.method == 'PATCH':
@@ -94,9 +78,6 @@ class MyUserViewSet(viewsets.ModelViewSet):
         return super().update(request, *args, **kwargs)
 
 
-
-
-
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     permission_classes = (AdminOrReadOnly,)
@@ -108,12 +89,10 @@ class TitleViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Title.objects.annotate(rating=Avg('title__score'))
 
-
     def get_serializer_class(self):
         if self.action in ('create', 'partial_update'):
             return TitleSerializersCreateUpdate
         return TitlesSerializer
-
 
 
 class CategoryViewSet(MixinSet):
@@ -121,11 +100,9 @@ class CategoryViewSet(MixinSet):
     serializer_class = CategorySerializer
 
 
-
 class GenreViewSet(MixinSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-
 
 
 class CommentViewSet(viewsets.ModelViewSet):
