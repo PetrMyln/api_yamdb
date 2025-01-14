@@ -1,6 +1,9 @@
+from django.core.validators import MaxValueValidator
 from django.db import models
 
 from api_yamdb.constant import CHOICES, LENGTH_256, LENGTH_150, LENGTH_50
+
+from api_yamdb.validators import date_year
 from users.models import MyUser
 
 
@@ -31,7 +34,9 @@ class Genre(models.Model):
 
 class Title(models.Model):
     name = models.CharField(max_length=256)
-    year = models.SmallIntegerField()
+    year = models.SmallIntegerField(
+        validators=[MaxValueValidator(date_year())]
+    )
     category = models.ForeignKey(
         Category,
         null=True,
