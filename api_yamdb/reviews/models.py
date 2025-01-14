@@ -37,6 +37,7 @@ class Category(BaseTitleModel):
     slug = models.SlugField(unique=True)
 
     class Meta(BaseTitleModel.Meta):
+        ordering = ['name']
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
@@ -68,6 +69,7 @@ class Title(BaseTitleModel):
         null=True,
         blank=True
     )
+
 
     class Meta(BaseTitleModel.Meta):
         default_related_name = 'titles'

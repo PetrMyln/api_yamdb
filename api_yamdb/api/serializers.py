@@ -24,7 +24,7 @@ class AuthSerializer(serializers.Serializer):
     def validate(self, data):
         try:
             MyUser.objects.get_or_create(
-                #ANTON
+                # ANTON
                 # Метод validate ничего создавать не должен, его задача п
                 # роверять валидность данных. За создание в сериализаторе
                 # отвечает метод create.
@@ -39,8 +39,8 @@ class AuthSerializer(serializers.Serializer):
 
 
 class TokenSerializer(serializers.Serializer):
-    #ANTON
-    #Использовать приставку Custom в неймингах - плохой тон.
+    # ANTON
+    # Использовать приставку Custom в неймингах - плохой тон.
     # Так же как и My. Все переменные/функции/классы/модули "кастомные" и
     # "твои", лишний раз об этом говорить не стоит.
     username = serializers.CharField()
@@ -154,5 +154,4 @@ class TitleSerializersCreateUpdate(serializers.ModelSerializer):
                   'genre',
                   'category',)
         model = Title
-
 

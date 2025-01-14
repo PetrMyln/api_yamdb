@@ -58,3 +58,5 @@ class Command(BaseCommand):
             data_for_db[1:])
         con.commit()
         con.close()
+
+
