@@ -4,7 +4,7 @@ from django.db import models
 from api_yamdb.constant import CHOICES, LENGTH_256, LENGTH_150, LENGTH_50
 
 from api_yamdb.validators import date_year
-from users.models import MyUser
+from users.models import User
 
 
 
@@ -67,7 +67,7 @@ class Title(models.Model):
 class Review(models.Model):
     text = models.TextField()
     author = models.ForeignKey(
-        MyUser, on_delete=models.CASCADE, related_name='review_author'
+        User, on_delete=models.CASCADE, related_name='review_author'
     )
     title = models.ForeignKey(
         Title, on_delete=models.CASCADE, related_name='title'
@@ -93,7 +93,7 @@ class Review(models.Model):
 
 class Comment(models.Model):
     author = models.ForeignKey(
-        MyUser, on_delete=models.CASCADE, related_name='comment_author'
+        User, on_delete=models.CASCADE, related_name='comment_author'
     )
     review = models.ForeignKey(
         Review, on_delete=models.CASCADE, related_name='review'

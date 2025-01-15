@@ -12,7 +12,6 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
-from rest_framework_simplejwt.views import TokenObtainPairView
 
 from api.filters import TitleFilter
 from api.mixin import MixinSet
@@ -35,16 +34,16 @@ from reviews.models import (
     Category,
     Comment,
     Genre,
-    MyUser,
+    User,
     Review,
     Title,
 )
 
-class MyUserViewSet(viewsets.ModelViewSet):
+class UserViewSet(viewsets.ModelViewSet):
     # Использовать приставку Custom в неймингах - плохой тон. Так же как и My.
     # Все переменные/функции/классы/модули "кастомные" и "твои",
     # лишний раз об этом говорить не стоит.
-    queryset = MyUser.objects.order_by('pk')
+    queryset = User.objects.order_by('pk')
     serializer_class = CustomUserSerializer
     permission_classes = (UserPermission,)
     lookup_field = 'username'
@@ -154,8 +153,8 @@ class SignUpView(APIView):
 
     def post(self, request):
         serializer = AuthSerializer(data=request.data)
-        if serializer.is_valid():
-            user = MyUser.objects.get(
+        if serializer.is_valid(raise_exception=True):
+            user = User.objects.get(
                 username=request.data.get('username'),
                 email=request.data.get('email')
             )
@@ -170,22 +169,13 @@ class SignUpView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class TokenView(TokenObtainPairView):
+class TokenView(APIView):
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
         serializer = TokenSerializer(data=request.data)
-        if serializer.is_valid():
-            user = get_object_or_404(
-                MyUser, username=request.data.get('username')
-            )
-            if not default_token_generator.check_token(
-                    user, request.data.get('confirmation_code')
-            ):
-                return Response(
-                    'Неверный confirmation_code',
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            token = {'token': str(AccessToken.for_user(user))}
+        if serializer.is_valid(raise_exception=True):
+            token = {'token': str(AccessToken.for_user(
+                serializer.validated_data['user']))}
             return Response(token, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

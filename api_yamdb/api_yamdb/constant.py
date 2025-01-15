@@ -9,3 +9,5 @@ LENGTH_256 = 256
 LENGTH_50 = 50
 
 CHOICES = ((score, score) for score in range(11))
+
+USERNAME_RESTRICTION = 'me'

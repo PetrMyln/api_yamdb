@@ -2,13 +2,15 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+from django.contrib.auth.tokens import default_token_generator
+from rest_framework_simplejwt.tokens import AccessToken
 
 from api_yamdb.constant import LENGTH_254, LENGTH_150
 from reviews.models import (
     Category,
     Comment,
     Genre,
-    MyUser,
+    User,
     Review,
     Title,
 )
@@ -22,34 +24,32 @@ class AuthSerializer(serializers.Serializer):
                                                  UnicodeUsernameValidator()))
 
     def validate(self, data):
-        try:
-            MyUser.objects.get_or_create(
-                # ANTON
-                # Метод validate ничего создавать не должен, его задача п
-                # роверять валидность данных. За создание в сериализаторе
-                # отвечает метод create.
-                username=data.get('username'),
-                email=data.get('email')
-            )
-        except IntegrityError:
-            raise serializers.ValidationError(
-                'Username или email уже используется кем-то другим!'
-            )
+        if User.objects.filter(username=data.get('username')).exists():
+            raise serializers.ValidationError({'username': 'Имя пользователя уже занято!'})
+        if User.objects.filter(email=data.get('email')).exists():
+            raise serializers.ValidationError({'email': 'Этот email уже используется!'})
         return data
 
 
 class TokenSerializer(serializers.Serializer):
-    # ANTON
-    # Использовать приставку Custom в неймингах - плохой тон.
-    # Так же как и My. Все переменные/функции/классы/модули "кастомные" и
-    # "твои", лишний раз об этом говорить не стоит.
     username = serializers.CharField()
     confirmation_code = serializers.CharField()
+
+    def validate(self, data):
+        user = get_object_or_404(
+            User, username=data.get('username'))
+        if not default_token_generator.check_token(user,
+                                                   data.get('confirmation_code')
+                                                   ):
+            raise serializers.ValidationError(
+                'Неверный confirmation_code')
+
+        return data
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MyUser
+        model = User
         fields = (
             'username',
             'email',
@@ -112,6 +112,7 @@ class TitlesSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     genre = GenreSerializer(many=True)
     rating = serializers.FloatField()
+
     class Meta:
         fields = ('id',
                   'name',

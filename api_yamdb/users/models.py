@@ -3,10 +3,10 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 
 from api_yamdb.constant import LENGTH_150, LENGTH_254, LENGTH_50
-from .validators import validate_username
+from users.validators import validate_username
 
 
-class MyUser(AbstractUser):
+class User(AbstractUser):
     class Role(models.TextChoices):
         USER = 'user', 'Пользователь'
         MODERATOR = 'moderator', 'Модератор'
@@ -37,6 +37,13 @@ class MyUser(AbstractUser):
         help_text='Напишите о себе'
     )
 
+    def __str__(self):
+        return self.username[:20]
+
+    class Meta:
+        ordering = ['username']
+        verbose_name = 'Пользователь'
+
     @property
     def is_admin(self):
         return self.is_superuser or self.role == self.Role.ADMIN.value
@@ -44,7 +51,3 @@ class MyUser(AbstractUser):
     @property
     def is_moderator(self):
         return self.is_staff or self.role == self.Role.MODERATOR.value
-
-    @property
-    def is_user(self):
-        return self.is_user or self.role == self.Role.USER.value

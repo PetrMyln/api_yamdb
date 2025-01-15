@@ -5,7 +5,7 @@ from api.views import (
     CommentViewSet,
     CategoryViewSet,
     GenreViewSet,
-    MyUserViewSet,
+    UserViewSet,
     ReviewViewSet,
     SignUpView,
     TokenView,
@@ -13,7 +13,7 @@ from api.views import (
 )
 
 v1_router = routers.DefaultRouter()
-v1_router.register('users', MyUserViewSet, basename='users')
+v1_router.register('users', UserViewSet, basename='users')
 v1_router.register('titles', TitleViewSet, basename='titles')
 v1_router.register('categories', CategoryViewSet, basename='categories')
 v1_router.register('genres', GenreViewSet, basename='genres')

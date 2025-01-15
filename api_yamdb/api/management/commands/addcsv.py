@@ -11,10 +11,10 @@ from reviews.models import (
     Review,
     Title,
 )
-from users.models import MyUser
+from users.models import User
 
 CSV_DATA = {
-    MyUser: 'users.csv',
+    User: 'users.csv',
     Genre: 'genre.csv',
     Category: 'category.csv',
     Title: 'titles.csv',

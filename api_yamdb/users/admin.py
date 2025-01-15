@@ -1,5 +1,12 @@
 from django.contrib import admin
 
-from .models import MyUser
+from .models import User
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-admin.site.register(MyUser)
+
+class UserAdmin(BaseUserAdmin):
+    list_display = ('username', 'email', 'role', 'bio',)
+    list_editable = ('role',)
+
+
+admin.site.register(User, UserAdmin)
