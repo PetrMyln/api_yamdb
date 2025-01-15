@@ -16,18 +16,21 @@ from users.validators import validate_username
 
 
 class AuthSerializer(serializers.Serializer):
-    email = serializers.EmailField(required=True, max_length=LENGTH_254)
-    username = serializers.CharField(required=True, max_length=LENGTH_150,
-                                     validators=(validate_username,
-                                                 UnicodeUsernameValidator()))
+    email = serializers.EmailField(
+        required=True,
+        max_length=LENGTH_254
+    )
+    username = serializers.CharField(
+        required=True,
+        max_length=LENGTH_150,
+        validators=(
+            validate_username,
+            UnicodeUsernameValidator())
+    )
 
     def validate(self, data):
         try:
             MyUser.objects.get_or_create(
-                # ANTON
-                # Метод validate ничего создавать не должен, его задача п
-                # роверять валидность данных. За создание в сериализаторе
-                # отвечает метод create.
                 username=data.get('username'),
                 email=data.get('email')
             )
@@ -39,10 +42,6 @@ class AuthSerializer(serializers.Serializer):
 
 
 class TokenSerializer(serializers.Serializer):
-    # ANTON
-    # Использовать приставку Custom в неймингах - плохой тон.
-    # Так же как и My. Все переменные/функции/классы/модули "кастомные" и
-    # "твои", лишний раз об этом говорить не стоит.
     username = serializers.CharField()
     confirmation_code = serializers.CharField()
 
@@ -107,11 +106,11 @@ class ReviewSerializer(serializers.ModelSerializer):
         return super().validate(attrs)
 
 
-
 class TitlesSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     genre = GenreSerializer(many=True)
     rating = serializers.FloatField()
+
     class Meta:
         fields = ('id',
                   'name',
@@ -137,14 +136,12 @@ class TitleSerializersCreateUpdate(serializers.ModelSerializer):
         required=True,
     )
 
-
     def validate_genre(self, value):
         if not value:
             return serializers.ValidationError({
                 'Ошибка': 'Необходимо указать жанр произведения.'
             })
         return value
-
 
     class Meta:
         fields = ('id',
@@ -154,4 +151,3 @@ class TitleSerializersCreateUpdate(serializers.ModelSerializer):
                   'genre',
                   'category',)
         model = Title
-

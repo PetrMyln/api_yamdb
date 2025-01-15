@@ -1,15 +1,16 @@
-from django.contrib import admin
 from django.core.validators import MaxValueValidator
 from django.db import models
 
 from api_yamdb.constant import CHOICES, LENGTH_256, LENGTH_150, LENGTH_50
-
 from api_yamdb.validators import date_year
 from users.models import MyUser
 
 
 class BaseTitleModel(models.Model):
-    name = models.CharField(max_length=LENGTH_256)
+    name = models.CharField(
+        max_length=LENGTH_256,
+        verbose_name='Название'
+    )
 
     class Meta:
         abstract = True
@@ -20,9 +21,11 @@ class BaseTitleModel(models.Model):
 
 
 class BaseReviewModel(models.Model):
-    text = models.TextField()
+    text = models.TextField(verbose_name='Текст')
     pub_date = models.DateTimeField(
-        'Дата добавления', auto_now_add=True, db_index=True
+        auto_now_add=True,
+        db_index=True,
+        verbose_name='Дата добавления'
     )
 
     class Meta:
@@ -34,16 +37,22 @@ class BaseReviewModel(models.Model):
 
 
 class Category(BaseTitleModel):
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(
+        unique=True,
+        verbose_name='Слаг',
+    )
 
     class Meta(BaseTitleModel.Meta):
-        ordering = ['name']
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
 
 class Genre(BaseTitleModel):
-    slug = models.SlugField(unique=True, max_length=LENGTH_50)
+    slug = models.SlugField(
+        unique=True,
+        max_length=LENGTH_50,
+        verbose_name='Слаг',
+    )
 
     class Meta(BaseTitleModel.Meta):
         verbose_name = 'Жанр'
@@ -52,24 +61,27 @@ class Genre(BaseTitleModel):
 
 class Title(BaseTitleModel):
     year = models.SmallIntegerField(
-        validators=[MaxValueValidator(date_year())]
+        validators=[MaxValueValidator(date_year())],
+        verbose_name='Год выхода'
     )
     category = models.ForeignKey(
         Category,
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
+        verbose_name='Категория'
     )
     genre = models.ManyToManyField(
         Genre,
         blank=True,
+        verbose_name='Жанр/Жанры'
     )
     description = models.CharField(
         max_length=LENGTH_256,
         null=True,
-        blank=True
+        blank=True,
+        verbose_name='Описание'
     )
-
 
     class Meta(BaseTitleModel.Meta):
         default_related_name = 'titles'
@@ -79,14 +91,24 @@ class Title(BaseTitleModel):
 
 class Review(BaseReviewModel):
     author = models.ForeignKey(
-        MyUser, on_delete=models.CASCADE, related_name='review_authors'
+        MyUser,
+        on_delete=models.CASCADE,
+        related_name='review_authors',
+        verbose_name='Автор'
     )
     title = models.ForeignKey(
-        Title, on_delete=models.CASCADE, related_name='titles'
+        Title,
+        on_delete=models.CASCADE,
+        related_name='titles',
+        verbose_name='Произведение',
     )
-    score = models.IntegerField(choices=CHOICES)
+    score = models.IntegerField(
+        choices=CHOICES,
+        verbose_name='Рейтинг',
+    )
 
-    class Meta(BaseReviewModel.Meta):
+    class Meta(BaseTitleModel.Meta):
+        ordering = ['-pub_date']
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
         constraints = [
@@ -98,12 +120,15 @@ class Review(BaseReviewModel):
 
 class Comment(BaseReviewModel):
     author = models.ForeignKey(
-        MyUser, on_delete=models.CASCADE, related_name='comment_authors'
+        MyUser,
+        on_delete=models.CASCADE,
+        related_name='comment_authors',
     )
     review = models.ForeignKey(
         Review, on_delete=models.CASCADE, related_name='reviews'
     )
 
-    class Meta(BaseReviewModel.Meta):
+    class Meta(BaseTitleModel.Meta):
+        ordering = ['-pub_date']
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
