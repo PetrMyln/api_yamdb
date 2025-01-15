@@ -1,4 +1,5 @@
 from django.core.exceptions import ValidationError
+from api_yamdb.constant import USERNAME_RESTRICTION
 
 
 def validate_username(value):
@@ -6,7 +7,7 @@ def validate_username(value):
         raise ValidationError(
             'username должен иметь тип str'
         )
-    if value.lower() == 'me':
+    if value == USERNAME_RESTRICTION:
         raise ValidationError(
             f'username не может быть "{value}"'
         )

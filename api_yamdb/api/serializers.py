@@ -2,13 +2,15 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+from django.contrib.auth.tokens import default_token_generator
+from rest_framework_simplejwt.tokens import AccessToken
 
 from api_yamdb.constant import LENGTH_254, LENGTH_150
 from reviews.models import (
     Category,
     Comment,
     Genre,
-    MyUser,
+    User,
     Review,
     Title,
 )
@@ -29,6 +31,7 @@ class AuthSerializer(serializers.Serializer):
     )
 
     def validate(self, data):
+
         try:
             MyUser.objects.get_or_create(
                 username=data.get('username'),
@@ -38,6 +41,7 @@ class AuthSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 'Username или email уже используется кем-то другим!'
             )
+
         return data
 
 
@@ -45,10 +49,21 @@ class TokenSerializer(serializers.Serializer):
     username = serializers.CharField()
     confirmation_code = serializers.CharField()
 
+    def validate(self, data):
+        user = get_object_or_404(
+            User, username=data.get('username'))
+        if not default_token_generator.check_token(user,
+                                                   data.get('confirmation_code')
+                                                   ):
+            raise serializers.ValidationError(
+                'Неверный confirmation_code')
+
+        return data
+
 
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MyUser
+        model = User
         fields = (
             'username',
             'email',

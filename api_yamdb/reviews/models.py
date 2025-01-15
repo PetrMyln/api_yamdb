@@ -3,7 +3,7 @@ from django.db import models
 
 from api_yamdb.constant import CHOICES, LENGTH_256, LENGTH_50
 from api_yamdb.validators import date_year
-from users.models import MyUser
+from users.models import User
 
 
 class BaseTitleModel(models.Model):
@@ -96,7 +96,13 @@ class Title(BaseTitleModel):
         verbose_name_plural = 'Произведения'
 
 
-class Review(BaseReviewModel):
+
+
+class Review(models.Model):
+    text = models.TextField()
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='review_author'
+    )
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
@@ -119,7 +125,11 @@ class Review(BaseReviewModel):
             )]
 
 
-class Comment(BaseReviewModel):
+
+class Comment(models.Model):
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='comment_author'
+    )
     review = models.ForeignKey(
         Review, on_delete=models.CASCADE,
         verbose_name='Отзыв',
