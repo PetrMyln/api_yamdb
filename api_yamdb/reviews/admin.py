@@ -37,7 +37,7 @@ class TitleAdmin(admin.ModelAdmin):
     list_display_links = ('name',)
     filter_horizontal = ('genre',)
 
-    @admin.display(description='Genre list')
+    @admin.display(description='Список жанров')
     def get_genres_list(self, obj):
         sqn_of_genre = Genre.objects.all().prefetch_related(
             'titles').filter(titles__id=obj.pk)
