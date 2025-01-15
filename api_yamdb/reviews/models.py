@@ -1,7 +1,7 @@
 from django.core.validators import MaxValueValidator
 from django.db import models
 
-from api_yamdb.constant import CHOICES, LENGTH_256, LENGTH_150, LENGTH_50
+from api_yamdb.constant import CHOICES, LENGTH_256, LENGTH_50
 from api_yamdb.validators import date_year
 from users.models import MyUser
 
@@ -22,6 +22,11 @@ class BaseTitleModel(models.Model):
 
 class BaseReviewModel(models.Model):
     text = models.TextField(verbose_name='Текст')
+    author = models.ForeignKey(
+        MyUser,
+        on_delete=models.CASCADE,
+        verbose_name='Автор'
+    )
     pub_date = models.DateTimeField(
         auto_now_add=True,
         db_index=True,
@@ -43,6 +48,7 @@ class Category(BaseTitleModel):
     )
 
     class Meta(BaseTitleModel.Meta):
+        default_related_name = 'categories'
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
@@ -55,6 +61,7 @@ class Genre(BaseTitleModel):
     )
 
     class Meta(BaseTitleModel.Meta):
+        default_related_name = 'genres'
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
@@ -90,16 +97,9 @@ class Title(BaseTitleModel):
 
 
 class Review(BaseReviewModel):
-    author = models.ForeignKey(
-        MyUser,
-        on_delete=models.CASCADE,
-        related_name='review_authors',
-        verbose_name='Автор'
-    )
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
-        related_name='titles',
         verbose_name='Произведение',
     )
     score = models.IntegerField(
@@ -109,6 +109,7 @@ class Review(BaseReviewModel):
 
     class Meta(BaseTitleModel.Meta):
         ordering = ['-pub_date']
+        default_related_name = 'reviews'
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
         constraints = [
@@ -119,16 +120,13 @@ class Review(BaseReviewModel):
 
 
 class Comment(BaseReviewModel):
-    author = models.ForeignKey(
-        MyUser,
-        on_delete=models.CASCADE,
-        related_name='comment_authors',
-    )
     review = models.ForeignKey(
-        Review, on_delete=models.CASCADE, related_name='reviews'
+        Review, on_delete=models.CASCADE,
+        verbose_name='Отзыв',
     )
 
     class Meta(BaseTitleModel.Meta):
         ordering = ['-pub_date']
+        default_related_name = 'comments'
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'

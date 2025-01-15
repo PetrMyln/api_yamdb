@@ -84,7 +84,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Title.objects.annotate(
-            rating=Avg('titles__score')).order_by('-id')
+            rating=Avg('reviews__score')).order_by('-id')
 
     def get_serializer_class(self):
         if self.action in ('create', 'partial_update'):
@@ -119,7 +119,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         )
 
     def get_queryset(self):
-        return self.get_review().reviews.all()
+        return self.get_review().comments.all()
 
     def perform_create(self, serializer):
         serializer.save(
@@ -141,7 +141,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return get_object_or_404(
             Title,
             pk=self.kwargs.get('title_id')
-        ).titles.all()
+        ).reviews.all()
 
     def perform_create(self, serializer):
         serializer.save(

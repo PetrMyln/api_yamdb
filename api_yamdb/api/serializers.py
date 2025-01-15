@@ -87,8 +87,6 @@ class ReviewSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        # DEN +
-        # Сверяемся со спецификацией, вывод не соответствует ТЗ.
         fields = ('id', 'text', 'author', 'score', 'pub_date')
         model = Review
 
@@ -97,7 +95,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         title_id = self.context['request'].parser_context['kwargs'].get(
             'title_id')
         title_obj = get_object_or_404(Title, id=title_id)
-        rule_obj_exists = title_obj.titles.filter(author=author).exists()
+        rule_obj_exists = title_obj.reviews.filter(author=author).exists()
         rule_request = self.context['request'].method
         if rule_request == 'POST' and rule_obj_exists:
             raise serializers.ValidationError(
