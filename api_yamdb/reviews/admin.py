@@ -14,11 +14,6 @@ class ReviewInLine(admin.StackedInline):
     extra = 0
 
 
-class GenreInLine(admin.TabularInline):
-    model = Title
-    extra = 0
-
-
 class TitleAdmin(admin.ModelAdmin):
     inlines = (ReviewInLine,)
     list_display = (
