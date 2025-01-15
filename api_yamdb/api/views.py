@@ -9,6 +9,7 @@ from rest_framework import filters, permissions, status
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
@@ -17,7 +18,8 @@ from api.filters import TitleFilter
 from api.mixin import MixinSet
 from api.permissions import (
     AdminOrReadOnly,
-    UserPermission, UserOrModeratorOrReadOnly,
+    UserPermission,
+    AuthorOrModeratorOrReadOnly,
 )
 from api.serializers import (
     AuthSerializer,
@@ -39,10 +41,8 @@ from reviews.models import (
     Title,
 )
 
+
 class UserViewSet(viewsets.ModelViewSet):
-    # Использовать приставку Custom в неймингах - плохой тон. Так же как и My.
-    # Все переменные/функции/классы/модули "кастомные" и "твои",
-    # лишний раз об этом говорить не стоит.
     queryset = User.objects.order_by('pk')
     serializer_class = CustomUserSerializer
     permission_classes = (UserPermission,)
@@ -62,9 +62,6 @@ class UserViewSet(viewsets.ModelViewSet):
             partial=True
         )
         if serializer.is_valid():
-            # У метода is_valid есть параметр-флаг raise_exception,
-            # если его поставить в True, то можно избавиться от проверок,
-            # метод вернет ошибки валидации. Можно почитать тут.
             if self.request.method == 'PATCH':
                 serializer.validated_data.pop('role', None)
             serializer.save()
@@ -78,7 +75,6 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
     permission_classes = (AdminOrReadOnly,)
     http_method_names = ['get', 'post', 'patch', 'delete']
     filterset_class = TitleFilter
@@ -86,7 +82,8 @@ class TitleViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
 
     def get_queryset(self):
-        return Title.objects.annotate(rating=Avg('title__score'))
+        return Title.objects.annotate(
+            rating=Avg('reviews__score')).order_by('-id')
 
     def get_serializer_class(self):
         if self.action in ('create', 'partial_update'):
@@ -107,36 +104,43 @@ class GenreViewSet(MixinSet):
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = (UserOrModeratorOrReadOnly,)
+    permission_classes = (
+        IsAuthenticatedOrReadOnly,
+        AuthorOrModeratorOrReadOnly
+    )
     http_method_names = ['get', 'post', 'patch', 'delete']
 
-    def get_queryset(self):
+    def get_review(self):
         return get_object_or_404(
             Review,
-            pk=self.kwargs.get('review_id')
-        ).review.all()
+            title_id=self.kwargs.get('title_id'),
+            id=self.kwargs.get('review_id'),
+        )
+
+    def get_queryset(self):
+        return self.get_review().comments.all()
 
     def perform_create(self, serializer):
         serializer.save(
             author=self.request.user,
-            review=get_object_or_404(
-                Review,
-                pk=self.kwargs.get('review_id')
-            )
+            review=self.get_review()
         )
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = (UserOrModeratorOrReadOnly,)
+    permission_classes = (
+        IsAuthenticatedOrReadOnly,
+        AuthorOrModeratorOrReadOnly
+    )
     http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_queryset(self):
         return get_object_or_404(
             Title,
             pk=self.kwargs.get('title_id')
-        ).title.all()
+        ).reviews.all()
 
     def perform_create(self, serializer):
         serializer.save(

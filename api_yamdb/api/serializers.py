@@ -18,16 +18,30 @@ from users.validators import validate_username
 
 
 class AuthSerializer(serializers.Serializer):
-    email = serializers.EmailField(required=True, max_length=LENGTH_254)
-    username = serializers.CharField(required=True, max_length=LENGTH_150,
-                                     validators=(validate_username,
-                                                 UnicodeUsernameValidator()))
+    email = serializers.EmailField(
+        required=True,
+        max_length=LENGTH_254
+    )
+    username = serializers.CharField(
+        required=True,
+        max_length=LENGTH_150,
+        validators=(
+            validate_username,
+            UnicodeUsernameValidator())
+    )
 
     def validate(self, data):
-        if User.objects.filter(username=data.get('username')).exists():
-            raise serializers.ValidationError({'username': 'Имя пользователя уже занято!'})
-        if User.objects.filter(email=data.get('email')).exists():
-            raise serializers.ValidationError({'email': 'Этот email уже используется!'})
+
+        try:
+            MyUser.objects.get_or_create(
+                username=data.get('username'),
+                email=data.get('email')
+            )
+        except IntegrityError:
+            raise serializers.ValidationError(
+                'Username или email уже используется кем-то другим!'
+            )
+
         return data
 
 
@@ -88,18 +102,15 @@ class ReviewSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        # DEN
-        # Сверяемся со спецификацией, вывод не соответствует ТЗ.
-        fields = ('id', 'text', 'author', 'title', 'score', 'pub_date')
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
         model = Review
-        read_only_fields = ('title',)
 
     def validate(self, attrs):
         author = self.context['request'].user.pk
         title_id = self.context['request'].parser_context['kwargs'].get(
             'title_id')
         title_obj = get_object_or_404(Title, id=title_id)
-        rule_obj_exists = title_obj.title.filter(author=author).exists()
+        rule_obj_exists = title_obj.reviews.filter(author=author).exists()
         rule_request = self.context['request'].method
         if rule_request == 'POST' and rule_obj_exists:
             raise serializers.ValidationError(
@@ -138,14 +149,12 @@ class TitleSerializersCreateUpdate(serializers.ModelSerializer):
         required=True,
     )
 
-
     def validate_genre(self, value):
         if not value:
             return serializers.ValidationError({
                 'Ошибка': 'Необходимо указать жанр произведения.'
             })
         return value
-
 
     class Meta:
         fields = ('id',
