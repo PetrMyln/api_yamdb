@@ -19,7 +19,8 @@ from api.filters import TitleFilter
 from api.mixin import MixinSet
 from api.permissions import (
     AdminOrReadOnly,
-    UserPermission, AuthorOrModeratorOrReadOnly,
+    UserPermission,
+    AuthorOrModeratorOrReadOnly,
 )
 from api.serializers import (
     AuthSerializer,
@@ -43,9 +44,6 @@ from reviews.models import (
 
 
 class MyUserViewSet(viewsets.ModelViewSet):
-    # Использовать приставку Custom в неймингах - плохой тон. Так же как и My.
-    # Все переменные/функции/классы/модули "кастомные" и "твои",
-    # лишний раз об этом говорить не стоит.
     queryset = MyUser.objects.order_by('pk')
     serializer_class = CustomUserSerializer
     permission_classes = (UserPermission,)
@@ -65,9 +63,6 @@ class MyUserViewSet(viewsets.ModelViewSet):
             partial=True
         )
         if serializer.is_valid():
-            # У метода is_valid есть параметр-флаг raise_exception,
-            # если его поставить в True, то можно избавиться от проверок,
-            # метод вернет ошибки валидации. Можно почитать тут.
             if self.request.method == 'PATCH':
                 serializer.validated_data.pop('role', None)
             serializer.save()
@@ -81,7 +76,6 @@ class MyUserViewSet(viewsets.ModelViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
     permission_classes = (AdminOrReadOnly,)
     http_method_names = ['get', 'post', 'patch', 'delete']
     filterset_class = TitleFilter
@@ -89,7 +83,8 @@ class TitleViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
 
     def get_queryset(self):
-        return Title.objects.annotate(rating=Avg('titles__score'))
+        return Title.objects.annotate(
+            rating=Avg('titles__score')).order_by('-id')
 
     def get_serializer_class(self):
         if self.action in ('create', 'partial_update'):
@@ -186,10 +181,12 @@ class TokenView(TokenObtainPairView):
         serializer = TokenSerializer(data=request.data)
         if serializer.is_valid():
             user = get_object_or_404(
-                MyUser, username=request.data.get('username')
+                MyUser,
+                username=request.data.get('username')
             )
             if not default_token_generator.check_token(
-                    user, request.data.get('confirmation_code')
+                user,
+                request.data.get('confirmation_code')
             ):
                 return Response(
                     'Неверный confirmation_code',

@@ -32,9 +32,4 @@ urlpatterns = [
     path('v1/', include(v1_router.urls)),
     path('v1/auth/signup/', SignUpView.as_view(), name='sign_up'),
     path('v1/auth/token/', TokenView.as_view(), name='get_token'),
-    #ANTON
-    # Урлы с одинаковым префиксом выносим в отдельный
-    # список. Будет один список urlpatterns, в нем остается
-    # префикс версии, и инклюдом подключаем список, в котором
-    # останется два path, ведущий на роутер и на auth/.
 ]
