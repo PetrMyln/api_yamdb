@@ -19,7 +19,7 @@ class NameModel(models.Model):
 
 
 class SlugModel(NameModel):
-    name = models.CharField(
+    slug = models.CharField(
         max_length=LENGTH_DISCRIPTION,
         verbose_name='Название'
     )
