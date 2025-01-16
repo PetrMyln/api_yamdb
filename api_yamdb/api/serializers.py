@@ -29,13 +29,15 @@ class AuthSerializer(serializers.Serializer):
     )
 
     def validate(self, data):
-        rule_username = User.objects.filter(
-            username=data.get('username')).exists()
-        rule_email = User.objects.filter(email=data.get('email')).exists()
+        username = data.get('username')
+        email = data.get('email')
+        rule_username = User.objects.filter(username=username).exists()
+        rule_email = User.objects.filter(email=email).exists()
         if rule_username == rule_email:
             return data
+        ans_error = (username, email)[rule_username]
         raise serializers.ValidationError(
-            {'email': 'Этот email или username уже используется!'})
+            f'Проверьте {ans_error} уже используется!')
 
 
 class TokenSerializer(serializers.Serializer):
