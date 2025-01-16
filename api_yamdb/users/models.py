@@ -2,28 +2,30 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 
-from .validators import validate_username
+from api_yamdb.constant import LENGTH_150, LENGTH_254, LENGTH_50
+from users.validators import validate_username
 
 
-class MyUser(AbstractUser):
+class User(AbstractUser):
     class Role(models.TextChoices):
         USER = 'user', 'Пользователь'
         MODERATOR = 'moderator', 'Модератор'
         ADMIN = 'admin', 'Администратор'
 
     username = models.CharField(
-        max_length=150,
+        max_length=LENGTH_150,
         unique=True,
+        verbose_name='Username аккаунта',
         validators=(validate_username, UnicodeUsernameValidator())
     )
     email = models.EmailField(
-        max_length=254,
+        max_length=LENGTH_254,
         unique=True,
         verbose_name='Электронная почта',
         help_text='Укажите электронную почту'
     )
     role = models.CharField(
-        max_length=50,
+        max_length=LENGTH_50,
         choices=Role.choices,
         default=Role.USER,
         verbose_name='Роль',
@@ -36,6 +38,12 @@ class MyUser(AbstractUser):
         help_text='Напишите о себе'
     )
 
+    def __str__(self):
+        return self.username[:20]
+
+    class Meta:
+        verbose_name = 'Пользователь'
+
     @property
     def is_admin(self):
         return self.is_superuser or self.role == self.Role.ADMIN.value
@@ -43,7 +51,3 @@ class MyUser(AbstractUser):
     @property
     def is_moderator(self):
         return self.is_staff or self.role == self.Role.MODERATOR.value
-
-    @property
-    def is_user(self):
-        return self.is_user or self.role == self.Role.USER.value

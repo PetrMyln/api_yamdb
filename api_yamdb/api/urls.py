@@ -5,7 +5,7 @@ from api.views import (
     CommentViewSet,
     CategoryViewSet,
     GenreViewSet,
-    MyUserViewSet,
+    UserViewSet,
     ReviewViewSet,
     SignUpView,
     TokenView,
@@ -13,7 +13,7 @@ from api.views import (
 )
 
 v1_router = routers.DefaultRouter()
-v1_router.register('users', MyUserViewSet, basename='users')
+v1_router.register('users', UserViewSet, basename='users')
 v1_router.register('titles', TitleViewSet, basename='titles')
 v1_router.register('categories', CategoryViewSet, basename='categories')
 v1_router.register('genres', GenreViewSet, basename='genres')
@@ -28,10 +28,12 @@ v1_router.register(
     basename='comments'
 )
 
+auth_patterns = [
+    path('signup/', SignUpView.as_view(), name='signup'),
+    path('token/', TokenView.as_view(), name='token'),
+]
+
 urlpatterns = [
     path('v1/', include(v1_router.urls)),
-    path('v1/auth/', include('djoser.urls')),
-    path('v1/', include('djoser.urls.jwt')),
-    path('v1/auth/signup/', SignUpView.as_view(), name='sign_up'),
-    path('v1/auth/token/', TokenView.as_view(), name='get_token'),
+    path('v1/auth/', include((auth_patterns, 'auth'))),
 ]
