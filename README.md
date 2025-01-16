@@ -3,8 +3,23 @@
 ### Описание:
 
 ```
-Учебный проект посвящён работе с DjangoRESTAPi. 
+Учебный проект YaMDb посвящён работе с DjangoRESTAPi.
+Проект YaMDb собирает отзывы пользователей на произведения.
+Сами произведения в YaMDb не хранятся, здесь нельзя посмотреть фильм или послушать музыку.
 ```
+
+### Техническое описание проекта YaMDb:
+
+```
+По адресу http://127.0.0.1:8000/redoc/ к нему подключена документация API. 
+```
+
+### Стек использованных технологий.:
+
+```
+ Python, Django RESTAPI, SQLite
+```
+
 
 ### Установка:
 
@@ -63,6 +78,65 @@ python3 manage.py migrate
 ```
 python3 manage.py runserver
 ```
+Cкрипт наполнения для тестового наполнения БД:
+```
+python3 manage.py addcsv
+```
+Если нужно заполнить БД своими данными:
+```
+1. Найдите файл addcsv.py api_yambd/managment/commands/addcsv.py.
+2. Изучите словарь CSV_DATA, и тестовые структуры таблиц в папке static/data/.
+3. Создайте файлы.
+4. Перейдите в папку api_yambd/api_yambd/ и выполните скрипт python3 manage.py addcsv
+5. Если не получилось... как говорят авторы курса по Python+ "У ВАС ВСЁ ПОЛУЧИТСЯ!!!! Мы в Вас верим!"
+```
 
+
+
+# Пример запроса:
+
+GET
+
+
+/api/v1/titles/
+```
+{
+"count": 0,
+"next": "string",
+"previous": "string",
+"results": [
+{
+"id": 0,
+"name": "string",
+"year": 0,
+"rating": 0,
+"description": "string",
+"genre": [],
+"category": {}
+}
+]
+}
+```
+
+POST
+
+/api/v1/titles/
+
+```
+{
+"name": "string",
+"year": 0,
+"description": "string",
+"genre": [
+"string"
+],
+"category": "string"
+}
+```
+# Авторы:
+- Команда яндекс практикума, https://github.com/yandex-praktikum
+- Антон, https://github.com/HeatcleaFF
+- Денис, https://github.com/DenisTereshkov
+- Пeтр, https://github.com/PetrMyln
 
 
