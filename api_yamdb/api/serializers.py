@@ -35,7 +35,7 @@ class AuthSerializer(serializers.Serializer):
         rule_email = User.objects.filter(email=email).exists()
         if rule_username == rule_email:
             return data
-        ans_error = (username, email)[rule_username]
+        ans_error = (email, username)[rule_username]
         raise serializers.ValidationError(
             f'Проверьте {ans_error} уже используется!')
 
