@@ -69,7 +69,7 @@ class TokenSerializer(serializers.Serializer):
         return user
 
 
-class CustomUserSerializer(serializers.ModelSerializer):
+class CustoUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
