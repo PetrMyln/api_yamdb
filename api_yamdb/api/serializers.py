@@ -32,7 +32,7 @@ class AuthSerializer(serializers.Serializer):
         rule_username = User.objects.filter(
             username=data.get('username')).exists()
         rule_email = User.objects.filter(email=data.get('email')).exists()
-        if not rule_username - rule_email:
+        if rule_username == rule_email:
             return data
         raise serializers.ValidationError(
             {'email': 'Этот email или username уже используется!'})
