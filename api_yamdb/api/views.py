@@ -7,15 +7,20 @@ from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework import filters, permissions, status
 from rest_framework.decorators import action
-from rest_framework.filters import OrderingFilter
+from rest_framework.filters import OrderingFilter, SearchFilter
+from rest_framework.mixins import (
+    ListModelMixin,
+    DestroyModelMixin,
+    CreateModelMixin
+)
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import GenericViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 
 from api.filters import TitleFilter
-from api.mixin import MixinSet
 from api.permissions import (
     AdminOrReadOnly,
     UserPermission,
@@ -40,6 +45,15 @@ from reviews.models import (
     Title,
 )
 from users.models import User
+
+
+class ListCreateDestroy(ListModelMixin, CreateModelMixin,
+                        DestroyModelMixin, GenericViewSet):
+    pagination_class = PageNumberPagination
+    filter_backends = (SearchFilter,)
+    search_fields = ('name',)
+    lookup_field = 'slug'
+    permission_classes = (AdminOrReadOnly,)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -90,12 +104,12 @@ class TitleViewSet(viewsets.ModelViewSet):
         return TitlesSerializer
 
 
-class CategoryViewSet(MixinSet):
+class CategoryViewSet(ListCreateDestroy):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
-class GenreViewSet(MixinSet):
+class GenreViewSet(ListCreateDestroy):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
