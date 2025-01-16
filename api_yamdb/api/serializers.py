@@ -1,9 +1,7 @@
 from django.contrib.auth.validators import UnicodeUsernameValidator
-from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from django.contrib.auth.tokens import default_token_generator
-from rest_framework_simplejwt.tokens import AccessToken
 
 from api_yamdb.constant import LENGTH_254, LENGTH_150
 from reviews.models import (
@@ -31,18 +29,13 @@ class AuthSerializer(serializers.Serializer):
     )
 
     def validate(self, data):
-
-        try:
-            MyUser.objects.get_or_create(
-                username=data.get('username'),
-                email=data.get('email')
-            )
-        except IntegrityError:
-            raise serializers.ValidationError(
-                'Username или email уже используется кем-то другим!'
-            )
-
-        return data
+        rule_username = User.objects.filter(
+            username=data.get('username')).exists()
+        rule_email = User.objects.filter(email=data.get('email')).exists()
+        if not rule_username - rule_email:
+            return data
+        raise serializers.ValidationError(
+            {'email': 'Этот email или username уже используется!'})
 
 
 class TokenSerializer(serializers.Serializer):
@@ -52,12 +45,11 @@ class TokenSerializer(serializers.Serializer):
     def validate(self, data):
         user = get_object_or_404(
             User, username=data.get('username'))
-        if not default_token_generator.check_token(user,
-                                                   data.get('confirmation_code')
-                                                   ):
+        if not default_token_generator.check_token(
+                user,
+                data.get('confirmation_code')):
             raise serializers.ValidationError(
                 'Неверный confirmation_code')
-
         return data
 
 
@@ -132,7 +124,6 @@ class TitlesSerializer(serializers.ModelSerializer):
                   'description',
                   'genre',
                   'category',)
-
         model = Title
 
 

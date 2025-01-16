@@ -6,7 +6,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 class UserAdmin(BaseUserAdmin):
     list_display = ('username', 'email', 'role', 'bio',)
-    list_editable = ('role',)
+    list_editable = ('role', 'bio')
 
 
 admin.site.register(User, UserAdmin)

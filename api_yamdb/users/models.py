@@ -15,6 +15,7 @@ class User(AbstractUser):
     username = models.CharField(
         max_length=LENGTH_150,
         unique=True,
+        verbose_name='Username аккаунта',
         validators=(validate_username, UnicodeUsernameValidator())
     )
     email = models.EmailField(
@@ -41,7 +42,6 @@ class User(AbstractUser):
         return self.username[:20]
 
     class Meta:
-        ordering = ['username']
         verbose_name = 'Пользователь'
 
     @property

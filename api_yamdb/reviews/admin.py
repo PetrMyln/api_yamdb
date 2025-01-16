@@ -41,7 +41,7 @@ class TitleAdmin(admin.ModelAdmin):
 
 
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ('text', 'author', 'title', 'score', 'pub_date')
+    list_display = ('text', 'author', 'title', 'score')
     search_fields = ('text', 'author', 'title',)
     list_display_links = ('text',)
 

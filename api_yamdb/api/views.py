@@ -61,12 +61,11 @@ class UserViewSet(viewsets.ModelViewSet):
             data=request.data,
             partial=True
         )
-        if serializer.is_valid():
-            if self.request.method == 'PATCH':
-                serializer.validated_data.pop('role', None)
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        if self.request.method == 'PATCH':
+            serializer.validated_data.pop('role', None)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
         if request.method == 'PUT':
@@ -136,19 +135,19 @@ class ReviewViewSet(viewsets.ModelViewSet):
     )
     http_method_names = ['get', 'post', 'patch', 'delete']
 
-    def get_queryset(self):
+    def title_obj(self):
         return get_object_or_404(
             Title,
             pk=self.kwargs.get('title_id')
-        ).reviews.all()
+        )
+
+    def get_queryset(self):
+        return self.title_obj().reviews.all()
 
     def perform_create(self, serializer):
         serializer.save(
             author=self.request.user,
-            title=get_object_or_404(
-                Title,
-                pk=self.kwargs.get('title_id')
-            )
+            title=self.title_obj()
         )
 
 
@@ -157,29 +156,29 @@ class SignUpView(APIView):
 
     def post(self, request):
         serializer = AuthSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            user = User.objects.get(
-                username=request.data.get('username'),
-                email=request.data.get('email')
-            )
-            confirmation_code = default_token_generator.make_token(user)
-            send_mail(
-                'Код подтверждения',
-                f'Ваш код - {confirmation_code}',
-                settings.SENDER_EMAIL,
-                [request.data.get('email')]
-            )
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        user, created = User.objects.get_or_create(
+            username=request.data.get('username'),
+            email=request.data.get('email')
+        )
+        confirmation_code = default_token_generator.make_token(user)
+        send_mail(
+            'Код подтверждения',
+            f'Ваш код - {confirmation_code}',
+            settings.SENDER_EMAIL,
+            [request.data.get('email')]
+        )
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class TokenView(APIView):
     permission_classes = (permissions.AllowAny,)
+    serializer_class = TokenSerializer
 
     def post(self, request):
         serializer = TokenSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            token = {'token': str(AccessToken.for_user(
-                serializer.validated_data['user']))}
-            return Response(token, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        token = {'token': str(AccessToken.for_user(
+            serializer.validated_data['user']))}
+        return Response(token, status=status.HTTP_200_OK)
