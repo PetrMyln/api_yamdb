@@ -147,14 +147,6 @@ class TitleSerializersCreateUpdate(serializers.ModelSerializer):
         required=True,
     )
 
-    def validate_genre(self, value):
-        if not value:
-            return serializers.ValidationError({
-                'Ошибка': 'Необходимо указать жанр произведения.'
-            })
-        return value
-
-
     class Meta:
         fields = ('id',
                   'name',
@@ -163,3 +155,10 @@ class TitleSerializersCreateUpdate(serializers.ModelSerializer):
                   'genre',
                   'category',)
         model = Title
+
+    def validate_genre(self, value):
+        if not value:
+            return serializers.ValidationError({
+                'Ошибка': 'Необходимо указать жанр произведения.'
+            })
+        return value
