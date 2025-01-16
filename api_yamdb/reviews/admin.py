@@ -36,8 +36,8 @@ class TitleAdmin(admin.ModelAdmin):
     def get_genres_list(self, obj):
         sqn_of_genre = Genre.objects.all().prefetch_related(
             'titles').filter(titles__id=obj.pk)
-        a = [c for c in sqn_of_genre]
-        return a if a else 'Добавте жанры к произведению'
+        genre_sqn = [c for c in sqn_of_genre]
+        return genre_sqn if genre_sqn else 'Добавте жанры к произведению'
 
 
 class ReviewAdmin(admin.ModelAdmin):

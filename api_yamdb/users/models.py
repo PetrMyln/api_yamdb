@@ -2,8 +2,13 @@ from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 
-from api_yamdb.constant import LENGTH_150, LENGTH_254, LENGTH_50
-from users.validators import validate_username
+from api_yamdb.constant import (
+    LENGTH_TEXT,
+    LENGTH_USERNAME,
+    LENGTH_ROLE,
+    LENGTH_SHOW_NAME
+)
+from api_yamdb.validators import validate_username
 
 
 class User(AbstractUser):
@@ -13,19 +18,19 @@ class User(AbstractUser):
         ADMIN = 'admin', 'Администратор'
 
     username = models.CharField(
-        max_length=LENGTH_150,
+        max_length=LENGTH_USERNAME,
         unique=True,
         verbose_name='Username аккаунта',
         validators=(validate_username, UnicodeUsernameValidator())
     )
     email = models.EmailField(
-        max_length=LENGTH_254,
+        max_length=LENGTH_TEXT,
         unique=True,
         verbose_name='Электронная почта',
         help_text='Укажите электронную почту'
     )
     role = models.CharField(
-        max_length=LENGTH_50,
+        max_length=LENGTH_ROLE,
         choices=Role.choices,
         default=Role.USER,
         verbose_name='Роль',
@@ -38,11 +43,13 @@ class User(AbstractUser):
         help_text='Напишите о себе'
     )
 
-    def __str__(self):
-        return self.username[:20]
-
     class Meta:
+        ordering = ['id']
         verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+
+    def __str__(self):
+        return self.username[:LENGTH_SHOW_NAME]
 
     @property
     def is_admin(self):

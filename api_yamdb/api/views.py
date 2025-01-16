@@ -36,10 +36,10 @@ from reviews.models import (
     Category,
     Comment,
     Genre,
-    User,
     Review,
     Title,
 )
+from users.models import User
 
 
 class UserViewSet(viewsets.ModelViewSet):
