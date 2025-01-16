@@ -31,7 +31,7 @@ from api.serializers import (
     CategorySerializer,
     CommentSerializer,
     GenreSerializer,
-    CustomUserSerializer,
+    UserSerializer,
     ReviewSerializer,
     TitlesSerializer,
     TitleSerializersCreateUpdate,
@@ -57,8 +57,8 @@ class ListCreateDestroy(ListModelMixin, CreateModelMixin,
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.order_by('pk')
-    serializer_class = CustomUserSerializer
+    queryset = User.objects.order_by('username')
+    serializer_class = UserSerializer
     permission_classes = (UserPermission,)
     lookup_field = 'username'
     filter_backends = (filters.SearchFilter,)
@@ -171,10 +171,7 @@ class SignUpView(APIView):
     def post(self, request):
         serializer = AuthSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user, created = User.objects.get_or_create(
-            username=request.data.get('username'),
-            email=request.data.get('email')
-        )
+        user = serializer.save()
         confirmation_code = default_token_generator.make_token(user)
         send_mail(
             'Код подтверждения',
