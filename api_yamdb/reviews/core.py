@@ -18,13 +18,13 @@ class NameModel(models.Model):
         return self.name
 
 
-class SlugModel(NameModel):
-    slug = models.CharField(
-        max_length=LENGTH_DISCRIPTION,
-        verbose_name='Название'
+class SlugModel(models.Model):
+    slug = models.SlugField(
+        unique=True,
+        verbose_name='Слаг',
     )
 
-    class Meta(NameModel.Meta):
+    class Meta:
         abstract = True
         ordering = ['name']
 

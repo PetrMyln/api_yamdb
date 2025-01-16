@@ -31,7 +31,7 @@ from api.serializers import (
     CategorySerializer,
     CommentSerializer,
     GenreSerializer,
-    CustomUserSerializer,
+    UserSerializer,
     ReviewSerializer,
     TitlesSerializer,
     TitleSerializersCreateUpdate,
@@ -57,8 +57,8 @@ class ListCreateDestroy(ListModelMixin, CreateModelMixin,
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.order_by('pk')
-    serializer_class = CustomUserSerializer
+    queryset = User.objects.order_by('username')
+    serializer_class = UserSerializer
     permission_classes = (UserPermission,)
     lookup_field = 'username'
     filter_backends = (filters.SearchFilter,)
@@ -96,7 +96,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Title.objects.annotate(
-            rating=Avg('reviews__score')).order_by('-id')
+            rating=Avg('reviews__score')).order_by('name')
 
     def get_serializer_class(self):
         if self.action in ('create', 'partial_update'):
@@ -171,10 +171,7 @@ class SignUpView(APIView):
     def post(self, request):
         serializer = AuthSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user, created = User.objects.get_or_create(
-            username=request.data.get('username'),
-            email=request.data.get('email')
-        )
+        user = serializer.save()
         confirmation_code = default_token_generator.make_token(user)
         send_mail(
             'Код подтверждения',
@@ -194,5 +191,5 @@ class TokenView(APIView):
         serializer = TokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         token = {'token': str(AccessToken.for_user(
-            serializer.validated_data['user']))}
+            serializer.validated_data))}
         return Response(token, status=status.HTTP_200_OK)

@@ -33,7 +33,10 @@ auth_patterns = [
     path('token/', TokenView.as_view(), name='token'),
 ]
 
+v1_patterns = [
+    path('', include(v1_router.urls)),
+    path('auth/', include((auth_patterns, 'auth'))),]
+
 urlpatterns = [
-    path('v1/', include(v1_router.urls)),
-    path('v1/auth/', include((auth_patterns, 'auth'))),
+    path('v1/', include(v1_patterns)),
 ]

@@ -38,11 +38,20 @@ class AuthSerializer(serializers.Serializer):
         email = data.get('email')
         rule_username = User.objects.filter(username=username).exists()
         rule_email = User.objects.filter(email=email).exists()
-        if rule_username == rule_email:
+        if (rule_email and rule_username) or (not rule_email
+                                              and not rule_username):
+            print(data)
             return data
         ans_error = (email, username)[rule_username]
         raise serializers.ValidationError(
             f'Проверьте {ans_error} уже используется!')
+
+    def create(self, validated_data):
+        user, _ = User.objects.get_or_create(
+            username=validated_data.get('username'),
+            email=validated_data.get('email')
+        )
+        return user
 
 
 class TokenSerializer(serializers.Serializer):
@@ -57,10 +66,11 @@ class TokenSerializer(serializers.Serializer):
                 data.get('confirmation_code')):
             raise serializers.ValidationError(
                 'Неверный confirmation_code')
-        return data
+
+        return user
 
 
-class CustomUserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
@@ -155,6 +165,10 @@ class TitleSerializersCreateUpdate(serializers.ModelSerializer):
                   'genre',
                   'category',)
         model = Title
+
+    def to_representation(self, instance):
+        serializer = TitlesSerializer(instance)
+        return serializer.data
 
     def validate_genre(self, value):
         if not value:
