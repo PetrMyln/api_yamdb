@@ -11,7 +11,6 @@ from reviews.models import (
     Review,
     Title,
 )
-
 from users.models import User
 
 CSV_DATA = {
@@ -25,7 +24,7 @@ CSV_DATA = {
 
 
 class Command(BaseCommand):
-    help = 'Add csv files from static/data/ dir in data base'
+    help = 'Add csv files'
 
     def handle(self, *args, **kwargs):
         for model, file_name in CSV_DATA.items():
