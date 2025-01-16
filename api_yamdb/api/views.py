@@ -31,7 +31,7 @@ from api.serializers import (
     CategorySerializer,
     CommentSerializer,
     GenreSerializer,
-    CustomUserSerializer,
+    UserSerializer,
     ReviewSerializer,
     TitlesSerializer,
     TitleSerializersCreateUpdate,
@@ -58,7 +58,7 @@ class ListCreateDestroy(ListModelMixin, CreateModelMixin,
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.order_by('username')
-    serializer_class = CustomUserSerializer
+    serializer_class = UserSerializer
     permission_classes = (UserPermission,)
     lookup_field = 'username'
     filter_backends = (filters.SearchFilter,)
