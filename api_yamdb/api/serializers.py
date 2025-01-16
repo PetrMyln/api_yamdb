@@ -57,6 +57,7 @@ class TokenSerializer(serializers.Serializer):
                 data.get('confirmation_code')):
             raise serializers.ValidationError(
                 'Неверный confirmation_code')
+
         return user
 
 
@@ -156,6 +157,10 @@ class TitleSerializersCreateUpdate(serializers.ModelSerializer):
                   'category',)
         model = Title
 
+    def to_representation(self, instance):
+        serializer = TitlesSerializer(instance)
+        return serializer.data
+    
     def validate_genre(self, value):
         if not value:
             return serializers.ValidationError({
