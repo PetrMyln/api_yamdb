@@ -1,7 +1,7 @@
+from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from django.contrib.auth.tokens import default_token_generator
 
 from api_yamdb.constant import (
     LENGTH_TEXT,
@@ -29,7 +29,8 @@ class AuthSerializer(serializers.Serializer):
         max_length=LENGTH_USERNAME,
         validators=(
             validate_username,
-            UnicodeUsernameValidator())
+            UnicodeUsernameValidator()
+        )
     )
 
     def validate(self, data):
@@ -120,7 +121,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 class TitlesSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     genre = GenreSerializer(many=True)
-    rating = serializers.FloatField()
+    rating = serializers.IntegerField()
 
     class Meta:
         fields = ('id',
@@ -146,13 +147,6 @@ class TitleSerializersCreateUpdate(serializers.ModelSerializer):
         required=True,
     )
 
-    def validate_genre(self, value):
-        if not value:
-            return serializers.ValidationError({
-                'Ошибка': 'Необходимо указать жанр произведения.'
-            })
-        return value
-
     class Meta:
         fields = ('id',
                   'name',
@@ -161,3 +155,10 @@ class TitleSerializersCreateUpdate(serializers.ModelSerializer):
                   'genre',
                   'category',)
         model = Title
+
+    def validate_genre(self, value):
+        if not value:
+            return serializers.ValidationError({
+                'Ошибка': 'Необходимо указать жанр произведения.'
+            })
+        return value
