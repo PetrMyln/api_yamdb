@@ -42,13 +42,21 @@ class TitleAdmin(admin.ModelAdmin):
 
 class ReviewAdmin(admin.ModelAdmin):
     list_display = ('text', 'author', 'title', 'score')
-    search_fields = ('text', 'author', 'title',)
+    search_fields = ('text', 'author__username', 'title__name',)
     list_display_links = ('text',)
+
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('text', 'author')
+    search_fields = ('text', 'author__username')
+
+class CategoryGenreAdmin(admin.ModelAdmin):
+    list_display = ('name', 'slug')
+    search_fields = ('name', 'slug')
 
 
 admin.site.empty_value_display = '(None)'
-admin.site.register(Category)
-admin.site.register(Comment)
-admin.site.register(Genre)
+admin.site.register(Category, CategoryGenreAdmin)
+admin.site.register(Comment, CommentAdmin)
+admin.site.register(Genre, CategoryGenreAdmin)
 admin.site.register(Review, ReviewAdmin)
 admin.site.register(Title, TitleAdmin)

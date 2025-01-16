@@ -6,22 +6,15 @@ from api_yamdb.validators import date_year
 from reviews.core import NameModel, TextAuthorDateModel, SlugModel
 
 
-class Category(SlugModel):
-    slug = models.SlugField(
-        unique=True,
-        verbose_name='Слаг',
-    )
+class Category(NameModel, SlugModel):
 
     class Meta(SlugModel.Meta):
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
 
-class Genre(SlugModel):
-    slug = models.SlugField(
-        unique=True,
-        verbose_name='Слаг',
-    )
+class Genre(NameModel, SlugModel):
+
 
     class Meta(SlugModel.Meta):
         verbose_name = 'Жанр'

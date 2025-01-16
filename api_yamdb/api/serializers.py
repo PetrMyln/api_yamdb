@@ -57,7 +57,7 @@ class TokenSerializer(serializers.Serializer):
                 data.get('confirmation_code')):
             raise serializers.ValidationError(
                 'Неверный confirmation_code')
-        return data
+        return user
 
 
 class CustomUserSerializer(serializers.ModelSerializer):

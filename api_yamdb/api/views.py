@@ -96,7 +96,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Title.objects.annotate(
-            rating=Avg('reviews__score')).order_by('-id')
+            rating=Avg('reviews__score')).order_by('name')
 
     def get_serializer_class(self):
         if self.action in ('create', 'partial_update'):
@@ -194,5 +194,5 @@ class TokenView(APIView):
         serializer = TokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         token = {'token': str(AccessToken.for_user(
-            serializer.validated_data['user']))}
+            serializer.validated_data))}
         return Response(token, status=status.HTTP_200_OK)
