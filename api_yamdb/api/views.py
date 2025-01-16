@@ -57,7 +57,7 @@ class ListCreateDestroy(ListModelMixin, CreateModelMixin,
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.order_by('pk')
+    queryset = User.objects.order_by('username')
     serializer_class = CustomUserSerializer
     permission_classes = (UserPermission,)
     lookup_field = 'username'
@@ -171,10 +171,7 @@ class SignUpView(APIView):
     def post(self, request):
         serializer = AuthSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user, created = User.objects.get_or_create(
-            username=request.data.get('username'),
-            email=request.data.get('email')
-        )
+        user = serializer.save()
         confirmation_code = default_token_generator.make_token(user)
         send_mail(
             'Код подтверждения',
@@ -194,5 +191,5 @@ class TokenView(APIView):
         serializer = TokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         token = {'token': str(AccessToken.for_user(
-            serializer.validated_data['user']))}
+            serializer.validated_data))}
         return Response(token, status=status.HTTP_200_OK)

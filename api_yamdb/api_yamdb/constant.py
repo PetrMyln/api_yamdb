@@ -11,3 +11,6 @@ CHOICES_SCORE = ((score, score) for score in range(11))
 
 USERNAME_RESTRICTION = 'me'
 
+ADDITIONAL_USER_FIELDS = (
+    (None, {'fields': ('role', 'bio')}),
+)
