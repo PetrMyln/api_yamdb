@@ -7,15 +7,20 @@ from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework import filters, permissions, status
 from rest_framework.decorators import action
-from rest_framework.filters import OrderingFilter
+from rest_framework.filters import OrderingFilter, SearchFilter
+from rest_framework.mixins import (
+    ListModelMixin,
+    DestroyModelMixin,
+    CreateModelMixin
+)
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import GenericViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 
 from api.filters import TitleFilter
-from api.mixin import MixinSet
 from api.permissions import (
     AdminOrReadOnly,
     UserPermission,
@@ -36,10 +41,19 @@ from reviews.models import (
     Category,
     Comment,
     Genre,
-    User,
     Review,
     Title,
 )
+from users.models import User
+
+
+class ListCreateDestroy(ListModelMixin, CreateModelMixin,
+                        DestroyModelMixin, GenericViewSet):
+    pagination_class = PageNumberPagination
+    filter_backends = (SearchFilter,)
+    search_fields = ('name',)
+    lookup_field = 'slug'
+    permission_classes = (AdminOrReadOnly,)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -82,7 +96,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Title.objects.annotate(
-            rating=Avg('reviews__score')).order_by('-id')
+            rating=Avg('reviews__score')).order_by('name')
 
     def get_serializer_class(self):
         if self.action in ('create', 'partial_update'):
@@ -90,12 +104,12 @@ class TitleViewSet(viewsets.ModelViewSet):
         return TitlesSerializer
 
 
-class CategoryViewSet(MixinSet):
+class CategoryViewSet(ListCreateDestroy):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
-class GenreViewSet(MixinSet):
+class GenreViewSet(ListCreateDestroy):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
@@ -180,5 +194,5 @@ class TokenView(APIView):
         serializer = TokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         token = {'token': str(AccessToken.for_user(
-            serializer.validated_data['user']))}
+            serializer.validated_data))}
         return Response(token, status=status.HTTP_200_OK)

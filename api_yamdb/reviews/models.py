@@ -1,74 +1,29 @@
-from django.core.validators import MaxValueValidator
 from django.db import models
 
-from api_yamdb.constant import LENGTH_256, LENGTH_50, CHOICES_SCORE
+from api_yamdb.constant import LENGTH_DISCRIPTION, CHOICES_SCORE
 from api_yamdb.validators import date_year
-from users.models import User
+
+from reviews.core import NameModel, TextAuthorDateModel, SlugModel
 
 
-class BaseTitleModel(models.Model):
-    name = models.CharField(
-        max_length=LENGTH_256,
-        verbose_name='Название'
-    )
+class Category(NameModel, SlugModel):
 
-    class Meta:
-        abstract = True
-        ordering = ['name']
-
-    def __str__(self):
-        return self.name
-
-
-class BaseReviewModel(models.Model):
-    text = models.TextField(verbose_name='Текст')
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        verbose_name='Автор'
-    )
-    pub_date = models.DateTimeField(
-        auto_now_add=True,
-        db_index=True,
-        verbose_name='Дата добавления'
-    )
-
-    class Meta:
-        abstract = True
-        ordering = ['-pub_date']
-
-    def __str__(self):
-        return self.text
-
-
-class Category(BaseTitleModel):
-    slug = models.SlugField(
-        unique=True,
-        verbose_name='Слаг',
-    )
-
-    class Meta(BaseTitleModel.Meta):
-        default_related_name = 'categories'
+    class Meta(SlugModel.Meta):
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
 
-class Genre(BaseTitleModel):
-    slug = models.SlugField(
-        unique=True,
-        max_length=LENGTH_50,
-        verbose_name='Слаг',
-    )
+class Genre(NameModel, SlugModel):
 
-    class Meta(BaseTitleModel.Meta):
-        default_related_name = 'genres'
+
+    class Meta(SlugModel.Meta):
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
 
-class Title(BaseTitleModel):
+class Title(NameModel):
     year = models.SmallIntegerField(
-        validators=[MaxValueValidator(date_year())],
+        validators=[date_year],
         verbose_name='Год выхода'
     )
     category = models.ForeignKey(
@@ -84,19 +39,19 @@ class Title(BaseTitleModel):
         verbose_name='Жанр/Жанры'
     )
     description = models.CharField(
-        max_length=LENGTH_256,
+        max_length=LENGTH_DISCRIPTION,
         null=True,
         blank=True,
         verbose_name='Описание'
     )
 
-    class Meta(BaseTitleModel.Meta):
+    class Meta(NameModel.Meta):
         default_related_name = 'titles'
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
 
 
-class Review(BaseReviewModel):
+class Review(TextAuthorDateModel):
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
@@ -106,8 +61,7 @@ class Review(BaseReviewModel):
         verbose_name='Рейтинг',
     )
 
-    class Meta(BaseTitleModel.Meta):
-        ordering = ['-pub_date']
+    class Meta(TextAuthorDateModel.Meta):
         default_related_name = 'reviews'
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
@@ -118,14 +72,15 @@ class Review(BaseReviewModel):
             )]
 
 
-class Comment(BaseReviewModel):
+class Comment(TextAuthorDateModel):
     review = models.ForeignKey(
         Review, on_delete=models.CASCADE,
         verbose_name='Отзыв',
     )
 
-    class Meta(BaseTitleModel.Meta):
-        ordering = ['-pub_date']
+    class Meta(TextAuthorDateModel.Meta):
         default_related_name = 'comments'
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
+
+

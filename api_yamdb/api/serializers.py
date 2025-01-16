@@ -1,41 +1,48 @@
+from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from django.contrib.auth.tokens import default_token_generator
 
-from api_yamdb.constant import LENGTH_254, LENGTH_150
+from api_yamdb.constant import (
+    LENGTH_TEXT,
+    LENGTH_DISCRIPTION,
+    LENGTH_USERNAME
+)
+from api_yamdb.validators import validate_username
 from reviews.models import (
     Category,
     Comment,
     Genre,
-    User,
     Review,
     Title,
 )
-from users.validators import validate_username
+from users.models import User
 
 
 class AuthSerializer(serializers.Serializer):
     email = serializers.EmailField(
         required=True,
-        max_length=LENGTH_254
+        max_length=LENGTH_TEXT
     )
     username = serializers.CharField(
         required=True,
-        max_length=LENGTH_150,
+        max_length=LENGTH_USERNAME,
         validators=(
             validate_username,
-            UnicodeUsernameValidator())
+            UnicodeUsernameValidator()
+        )
     )
 
     def validate(self, data):
-        rule_username = User.objects.filter(
-            username=data.get('username')).exists()
-        rule_email = User.objects.filter(email=data.get('email')).exists()
-        if not rule_username - rule_email:
+        username = data.get('username')
+        email = data.get('email')
+        rule_username = User.objects.filter(username=username).exists()
+        rule_email = User.objects.filter(email=email).exists()
+        if rule_username == rule_email:
             return data
+        ans_error = (email, username)[rule_username]
         raise serializers.ValidationError(
-            {'email': 'Этот email или username уже используется!'})
+            f'Проверьте {ans_error} уже используется!')
 
 
 class TokenSerializer(serializers.Serializer):
@@ -50,7 +57,7 @@ class TokenSerializer(serializers.Serializer):
                 data.get('confirmation_code')):
             raise serializers.ValidationError(
                 'Неверный confirmation_code')
-        return data
+        return user
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
@@ -114,7 +121,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 class TitlesSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     genre = GenreSerializer(many=True)
-    rating = serializers.FloatField()
+    rating = serializers.IntegerField()
 
     class Meta:
         fields = ('id',
@@ -140,13 +147,6 @@ class TitleSerializersCreateUpdate(serializers.ModelSerializer):
         required=True,
     )
 
-    def validate_genre(self, value):
-        if not value:
-            return serializers.ValidationError({
-                'Ошибка': 'Необходимо указать жанр произведения.'
-            })
-        return value
-
     class Meta:
         fields = ('id',
                   'name',
@@ -155,3 +155,10 @@ class TitleSerializersCreateUpdate(serializers.ModelSerializer):
                   'genre',
                   'category',)
         model = Title
+
+    def validate_genre(self, value):
+        if not value:
+            return serializers.ValidationError({
+                'Ошибка': 'Необходимо указать жанр произведения.'
+            })
+        return value
