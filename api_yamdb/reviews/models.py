@@ -1,9 +1,9 @@
 from django.core.validators import MaxValueValidator
 from django.db import models
 
-from api_yamdb.constant import CHOICES, LENGTH_256, LENGTH_50
+from api_yamdb.constant import LENGTH_256, LENGTH_50, CHOICES_SCORE
 from api_yamdb.validators import date_year
-from users.models import MyUser
+from users.models import User
 
 
 class BaseTitleModel(models.Model):
@@ -23,7 +23,7 @@ class BaseTitleModel(models.Model):
 class BaseReviewModel(models.Model):
     text = models.TextField(verbose_name='Текст')
     author = models.ForeignKey(
-        MyUser,
+        User,
         on_delete=models.CASCADE,
         verbose_name='Автор'
     )
@@ -100,10 +100,9 @@ class Review(BaseReviewModel):
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
-        verbose_name='Произведение',
     )
     score = models.IntegerField(
-        choices=CHOICES,
+        choices=CHOICES_SCORE,
         verbose_name='Рейтинг',
     )
 

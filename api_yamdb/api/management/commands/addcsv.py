@@ -1,27 +1,26 @@
-import csv
 import sqlite3
+from csv import DictReader
 
 from django.core.management.base import BaseCommand
 
-from api_yamdb.constant import STATIC_DIR_FOR_CSV_FILES, FILE_GENRE_TITLE
+from api_yamdb.constant import FILE_GENRE_TITLE, STATIC_DIR_FOR_CSV_FILES
 from reviews.models import (
     Category,
     Comment,
     Genre,
     Review,
     Title,
-
 )
-from users.models import MyUser
+
+from users.models import User
 
 CSV_DATA = {
-    MyUser: 'users.csv',
+    User: 'users.csv',
     Genre: 'genre.csv',
     Category: 'category.csv',
     Title: 'titles.csv',
     Review: 'review.csv',
     Comment: 'comments.csv',
-
 }
 
 
@@ -32,7 +31,7 @@ class Command(BaseCommand):
         for model, file_name in CSV_DATA.items():
             file_name = STATIC_DIR_FOR_CSV_FILES + file_name
             with open(file_name, encoding='utf-8') as file:
-                rows = csv.DictReader(file)
+                rows = DictReader(file)
                 for row in rows:
                     try:
                         model.objects.create(**row).save()
