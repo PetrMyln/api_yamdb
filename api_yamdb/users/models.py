@@ -1,14 +1,9 @@
+from api_yamdb.constant import (LENGTH_ROLE, LENGTH_SHOW_NAME, LENGTH_TEXT,
+                                LENGTH_USERNAME)
+from api_yamdb.validators import validate_username
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
-
-from api_yamdb.constant import (
-    LENGTH_TEXT,
-    LENGTH_USERNAME,
-    LENGTH_ROLE,
-    LENGTH_SHOW_NAME
-)
-from api_yamdb.validators import validate_username
 
 
 class User(AbstractUser):

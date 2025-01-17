@@ -1,16 +1,9 @@
 import sqlite3
 from csv import DictReader
 
-from django.core.management.base import BaseCommand
-
 from api_yamdb.constant import FILE_GENRE_TITLE, STATIC_DIR_FOR_CSV_FILES
-from reviews.models import (
-    Category,
-    Comment,
-    Genre,
-    Review,
-    Title,
-)
+from django.core.management.base import BaseCommand
+from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
 
 CSV_DATA = {

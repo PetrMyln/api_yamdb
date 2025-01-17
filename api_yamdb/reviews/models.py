@@ -1,9 +1,7 @@
-from django.db import models
-
-from api_yamdb.constant import LENGTH_DISCRIPTION, CHOICES_SCORE
+from api_yamdb.constant import CHOICES_SCORE, LENGTH_DISCRIPTION
 from api_yamdb.validators import date_year
-
-from reviews.core import NameModel, TextAuthorDateModel, SlugModel
+from django.db import models
+from reviews.core import NameModel, SlugModel, TextAuthorDateModel
 
 
 class Category(NameModel, SlugModel):

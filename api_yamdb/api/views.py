@@ -1,49 +1,28 @@
+from api.filters import TitleFilter
+from api.permissions import (AdminOrReadOnly, AuthorOrModeratorOrReadOnly,
+                             UserPermission)
+from api.serializers import (AuthSerializer, CategorySerializer,
+                             CommentSerializer, GenreSerializer,
+                             ReviewSerializer, TitleSerializersCreateUpdate,
+                             TitlesSerializer, TokenSerializer, UserSerializer)
 from django.conf import settings
-from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
 from django.db.models import Avg
-from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
-from rest_framework import filters, permissions, status
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
-from rest_framework.mixins import (
-    ListModelMixin,
-    DestroyModelMixin,
-    CreateModelMixin
-)
+from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
+                                   ListModelMixin)
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 from rest_framework_simplejwt.tokens import AccessToken
-
-from api.filters import TitleFilter
-from api.permissions import (
-    AdminOrReadOnly,
-    UserPermission,
-    AuthorOrModeratorOrReadOnly,
-)
-from api.serializers import (
-    AuthSerializer,
-    CategorySerializer,
-    CommentSerializer,
-    GenreSerializer,
-    UserSerializer,
-    ReviewSerializer,
-    TitlesSerializer,
-    TitleSerializersCreateUpdate,
-    TokenSerializer
-)
-from reviews.models import (
-    Category,
-    Comment,
-    Genre,
-    Review,
-    Title,
-)
+from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
 
 

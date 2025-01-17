@@ -1,21 +1,10 @@
+from api_yamdb.constant import LENGTH_DISCRIPTION, LENGTH_TEXT, LENGTH_USERNAME
+from api_yamdb.validators import validate_username
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-
-from api_yamdb.constant import (
-    LENGTH_TEXT,
-    LENGTH_DISCRIPTION,
-    LENGTH_USERNAME
-)
-from api_yamdb.validators import validate_username
-from reviews.models import (
-    Category,
-    Comment,
-    Genre,
-    Review,
-    Title,
-)
+from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
 
 
@@ -167,8 +156,11 @@ class TitleSerializersCreateUpdate(serializers.ModelSerializer):
         model = Title
 
     def to_representation(self, instance):
+        print(111111111111111111111111)
+
         serializer = TitlesSerializer(instance)
-        return serializer.data
+        print(serializer)
+        return serializer
 
     def validate_genre(self, value):
         if not value:
