@@ -1,6 +1,6 @@
 from django.db import models
 
-from api_yamdb.constant import CHOICES_SCORE, LENGTH_DISCRIPTION
+from api_yamdb.constant import LENGTH_DISCRIPTION
 from users.models import User
 
 

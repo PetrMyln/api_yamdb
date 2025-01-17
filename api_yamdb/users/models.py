@@ -6,6 +6,7 @@ from api_yamdb.constant import (LENGTH_ROLE, LENGTH_SHOW_NAME, LENGTH_TEXT,
                                 LENGTH_USERNAME)
 from api_yamdb.validators import validate_username
 
+
 class User(AbstractUser):
     class Role(models.TextChoices):
         USER = 'user', 'Пользователь'
