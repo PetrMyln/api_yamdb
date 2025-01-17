@@ -1,3 +1,5 @@
+from django.db.models.functions import Coalesce
+
 from api.filters import TitleFilter
 from api.permissions import (AdminOrReadOnly, AuthorOrModeratorOrReadOnly,
                              UserPermission)
@@ -74,8 +76,11 @@ class TitleViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
 
     def get_queryset(self):
+
         return Title.objects.annotate(
-            rating=Avg('reviews__score')).order_by('name')
+            rating=Avg('reviews__score'),
+
+        ).order_by('name')
 
     def get_serializer_class(self):
         if self.action in ('create', 'partial_update'):
@@ -152,6 +157,7 @@ class SignUpView(APIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         confirmation_code = default_token_generator.make_token(user)
+        print(confirmation_code)
         send_mail(
             'Код подтверждения',
             f'Ваш код - {confirmation_code}',

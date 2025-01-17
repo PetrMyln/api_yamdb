@@ -5,15 +5,12 @@ from reviews.core import NameModel, SlugModel, TextAuthorDateModel
 
 
 class Category(NameModel, SlugModel):
-
     class Meta(SlugModel.Meta):
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
 
 class Genre(NameModel, SlugModel):
-
-
     class Meta(SlugModel.Meta):
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
@@ -80,5 +77,3 @@ class Comment(TextAuthorDateModel):
         default_related_name = 'comments'
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
-
-

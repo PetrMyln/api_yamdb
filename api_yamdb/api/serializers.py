@@ -120,7 +120,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 class TitlesSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     genre = GenreSerializer(many=True)
-    rating = serializers.IntegerField()
+    rating = serializers.IntegerField(read_only=True, default=0, initial=0)
 
     class Meta:
         fields = ('id',
@@ -156,11 +156,8 @@ class TitleSerializersCreateUpdate(serializers.ModelSerializer):
         model = Title
 
     def to_representation(self, instance):
-        print(111111111111111111111111)
-
         serializer = TitlesSerializer(instance)
-        print(serializer)
-        return serializer
+        return serializer.data
 
     def validate_genre(self, value):
         if not value:
