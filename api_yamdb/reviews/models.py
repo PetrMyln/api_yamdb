@@ -1,6 +1,7 @@
+from django.db import models
+
 from api_yamdb.constant import CHOICES_SCORE, LENGTH_DISCRIPTION
 from api_yamdb.validators import date_year
-from django.db import models
 from reviews.core import NameModel, SlugModel, TextAuthorDateModel
 
 
@@ -54,6 +55,7 @@ class Review(TextAuthorDateModel):
     score = models.IntegerField(
         choices=CHOICES_SCORE,
         verbose_name='Рейтинг',
+        default=0
     )
 
     class Meta(TextAuthorDateModel.Meta):

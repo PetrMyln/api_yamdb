@@ -1,12 +1,3 @@
-from django.db.models.functions import Coalesce
-
-from api.filters import TitleFilter
-from api.permissions import (AdminOrReadOnly, AuthorOrModeratorOrReadOnly,
-                             UserPermission)
-from api.serializers import (AuthSerializer, CategorySerializer,
-                             CommentSerializer, GenreSerializer,
-                             ReviewSerializer, TitleSerializersCreateUpdate,
-                             TitlesSerializer, TokenSerializer, UserSerializer)
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
@@ -24,6 +15,25 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 from rest_framework_simplejwt.tokens import AccessToken
+
+
+from api.filters import TitleFilter
+from api.permissions import (
+    AdminOrReadOnly,
+    AuthorOrModeratorOrReadOnly,
+    UserPermission
+)
+from api.serializers import (
+    AuthSerializer,
+    CategorySerializer,
+    CommentSerializer,
+    GenreSerializer,
+    ReviewSerializer,
+    TitleSerializersCreateUpdate,
+    TitlesSerializer,
+    TokenSerializer,
+    UserSerializer
+)
 from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
 
@@ -78,7 +88,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
 
         return Title.objects.annotate(
-            rating=Avg('reviews__score'),
+            rating= Avg('reviews__score'),
 
         ).order_by('name')
 

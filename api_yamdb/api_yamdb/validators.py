@@ -1,7 +1,8 @@
 from datetime import datetime
 
-from api_yamdb.constant import USERNAME_RESTRICTION
 from django.core.exceptions import ValidationError
+
+from api_yamdb.constant import USERNAME_RESTRICTION
 
 
 def validate_username(value):

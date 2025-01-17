@@ -1,9 +1,10 @@
-from api_yamdb.constant import LENGTH_DISCRIPTION, LENGTH_TEXT, LENGTH_USERNAME
-from api_yamdb.validators import validate_username
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+
+from api_yamdb.constant import LENGTH_DISCRIPTION, LENGTH_TEXT, LENGTH_USERNAME
+from api_yamdb.validators import validate_username
 from reviews.models import Category, Comment, Genre, Review, Title
 from users.models import User
 

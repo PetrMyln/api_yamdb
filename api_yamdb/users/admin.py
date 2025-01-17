@@ -1,6 +1,7 @@
-from api_yamdb.constant import ADDITIONAL_USER_FIELDS
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+
+from api_yamdb.constant import ADDITIONAL_USER_FIELDS
 from users.models import User
 
 
