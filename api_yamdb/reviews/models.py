@@ -46,7 +46,6 @@ class Title(NameModel):
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
 
-
 class Review(TextAuthorDateModel):
     title = models.ForeignKey(
         Title,
@@ -55,7 +54,7 @@ class Review(TextAuthorDateModel):
     score = models.IntegerField(
         choices=CHOICES_SCORE,
         verbose_name='Рейтинг',
-        default=0
+        #default=0
     )
 
     class Meta(TextAuthorDateModel.Meta):

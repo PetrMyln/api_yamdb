@@ -30,7 +30,6 @@ class AuthSerializer(serializers.Serializer):
         rule_email = User.objects.filter(email=email).exists()
         if (rule_email and rule_username) or (not rule_email
                                               and not rule_username):
-            print(data)
             return data
         ans_error = (email, username)[rule_username]
         raise serializers.ValidationError(
@@ -56,7 +55,6 @@ class TokenSerializer(serializers.Serializer):
                 data.get('confirmation_code')):
             raise serializers.ValidationError(
                 'Неверный confirmation_code')
-
         return user
 
 
@@ -121,7 +119,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 class TitlesSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     genre = GenreSerializer(many=True)
-    rating = serializers.IntegerField(read_only=True, default=0, initial=0)
+    rating = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         fields = ('id',

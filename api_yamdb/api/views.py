@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db.models import Avg
+from django.db.models.functions import Coalesce
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, permissions, status, viewsets
@@ -15,7 +16,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 from rest_framework_simplejwt.tokens import AccessToken
-
 
 from api.filters import TitleFilter
 from api.permissions import (
@@ -86,8 +86,12 @@ class TitleViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
 
     def get_queryset(self):
+        if self.request.user.is_anonymous:
+            return Title.objects.annotate(
+                rating=Avg('reviews__score'),
+            ).order_by('name')
         return Title.objects.annotate(
-            rating=Avg('reviews__score'),
+            rating=Coalesce(Avg('reviews__score'), 0.0),
         ).order_by('name')
 
     def get_serializer_class(self):
@@ -165,7 +169,6 @@ class SignUpView(APIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         confirmation_code = default_token_generator.make_token(user)
-        print(confirmation_code)
         send_mail(
             'Код подтверждения',
             f'Ваш код - {confirmation_code}',
