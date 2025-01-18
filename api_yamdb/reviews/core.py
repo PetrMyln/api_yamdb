@@ -26,10 +26,7 @@ class SlugModel(models.Model):
 
     class Meta:
         abstract = True
-        ordering = ['name']
-
-    def __str__(self):
-        return self.name
+        ordering = ['slug']
 
 
 class TextAuthorDateModel(models.Model):
