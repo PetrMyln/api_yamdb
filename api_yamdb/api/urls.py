@@ -33,4 +33,5 @@ v1_patterns = [
 ]
 
 urlpatterns = [
-    path('v1/', include(v1_patterns)),]
+    path('v1/', include(v1_patterns)),
+]
